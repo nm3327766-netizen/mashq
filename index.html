@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#3b82f6">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Фитнес">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Фитнес</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--tx:#111827;--mu:#6b7280;--ln:#e5e7eb;--in:#f1f3f6;--ac:#3b82f6;--acs:#e8f0fe;--ok:#22c55e;--oks:#dcfce7;--bad:#ef4444;--warn:#f59e0b;--nav:64px;--sb:env(safe-area-inset-bottom,0px);--st:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1115;--card:#1a1d23;--tx:#f3f4f6;--mu:#9ca3af;--ln:#2a2e36;--in:#23272f;--acs:#1e2a44;--oks:#123821}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--tx);font:16px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;overscroll-behavior:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input,select,textarea{font:inherit;color:var(--tx)}
+#main{padding-bottom:calc(var(--nav) + var(--sb) + 80px);min-height:100%}
+.top{position:sticky;top:0;z-index:5;background:var(--card);padding:calc(var(--st) + 14px) 18px 12px;border-bottom:1px solid var(--ln);display:flex;align-items:center;gap:10px}
+.top h1{font-size:26px;font-weight:800;flex:1}
+.wrap{padding:14px}
+.card{background:var(--card);border-radius:16px;padding:14px;margin-bottom:12px;border:1px solid var(--ln)}
+.row{display:flex;align-items:center;gap:10px}.between{justify-content:space-between}.sp{flex:1}
+.mu{color:var(--mu)}.sm{font-size:13px}.acc{color:var(--ac)}
+.sec{font-size:15px;color:var(--mu);font-weight:600;margin:18px 4px 10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 16px;border-radius:12px;font-weight:600;background:var(--in)}
+.btn.primary{background:var(--ac);color:#fff}.btn.light{background:var(--in)}.btn.sm{padding:8px 12px;font-size:14px;border-radius:10px}
+.btn.block{display:flex;width:100%;margin-bottom:10px}.btn.danger{background:var(--bad);color:#fff}.btn.danger-t{color:var(--bad);background:transparent}
+.btn:active,.ib:active{opacity:.6}
+.ib{width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;flex:none}
+.ib svg,.btn svg{width:22px;height:22px}
+.big{font-size:26px;font-weight:800}.big small{font-size:14px;color:var(--mu);font-weight:500}
+.kv{display:flex;gap:22px;margin-top:10px}.kv span{display:block;font-size:12px;color:var(--mu)}.kv b{font-size:17px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;text-align:center}
+.grid3 b{display:block;font-size:16px}.grid3 span{font-size:12px;color:var(--mu)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:14px;display:flex;align-items:center;gap:10px;font-weight:600;text-align:left}
+.tile svg{width:24px;height:24px;color:var(--ac);flex:none}
+.dots{display:flex;gap:6px;margin-top:10px}.dots i{flex:1;height:8px;border-radius:4px;background:var(--in)}.dots i.on{background:var(--ok)}
+.streak{text-align:center;background:var(--acs);border-radius:14px;padding:8px 12px;color:var(--ac)}
+.streak b{font-size:22px;display:block}.streak small{font-size:11px}
+.wcard .exl{margin-top:10px;border-top:1px solid var(--ln);padding-top:8px}
+.wcard .exl .row{padding:3px 0;font-size:14px}
+.th{border-radius:50%;flex:none;display:inline-flex;align-items:center;justify-content:center;font-weight:700;color:#fff;overflow:hidden;background:#cbd5e1}
+.th img{width:100%;height:100%;object-fit:cover;background:#fff}
+.rcard h3{font-size:19px;margin-bottom:4px}.rcard p{color:var(--mu);font-size:14px;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.empty{text-align:center;color:var(--mu);padding:30px 10px}
+/* nav */
+#nav{position:fixed;left:0;right:0;bottom:0;height:calc(var(--nav) + var(--sb));padding-bottom:var(--sb);background:var(--card);border-top:1px solid var(--ln);display:flex;z-index:20}
+#nav button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;color:var(--mu)}
+#nav button svg{width:24px;height:24px}#nav button.on{color:var(--ac)}
+#nav button.on svg{background:var(--acs);border-radius:12px;padding:2px 12px;width:50px;box-sizing:content-box}
+/* mini bar */
+#mini{position:fixed;left:10px;right:10px;bottom:calc(var(--nav) + var(--sb) + 8px);z-index:19;display:none}
+#mini.on{display:block}
+.minibar{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--ln);border-radius:20px;padding:10px 12px;box-shadow:0 6px 24px rgba(0,0,0,.15);width:100%;text-align:left}
+.minibar .dotg{width:12px;height:12px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 4px var(--oks);flex:none;margin-left:6px}
+.minibar small{display:block;color:var(--mu);font-size:14px}.minibar>div{flex:1;min-width:0}
+.minibar small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trash{color:var(--bad)}
+/* layers */
+.page{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;animation:slin .2s ease}
+@keyframes slin{from{transform:translateX(30%);opacity:.3}}
+.phead{display:flex;align-items:center;gap:8px;padding:calc(var(--st) + 8px) 10px 8px;background:var(--card);border-bottom:1px solid var(--ln);min-height:56px}
+.phead h2{font-size:18px;flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pbody{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px}
+.sheetbg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;opacity:0;transition:opacity .2s}
+.sheetbg.on{opacity:1}
+.sheet{background:var(--card);width:100%;max-height:88vh;border-radius:20px 20px 0 0;padding:8px 16px calc(16px + var(--sb));overflow-y:auto;transform:translateY(30px);transition:transform .2s}
+.sheetbg.on .sheet{transform:none}
+.sheet.full{height:92vh;max-height:92vh;display:flex;flex-direction:column;overflow:hidden}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--ln);margin:2px auto 10px}
+.shead{display:flex;align-items:center;gap:8px;margin-bottom:10px}.shead b{flex:1;text-align:center;font-size:17px}
+.mitem{display:flex;align-items:center;gap:12px;width:100%;padding:14px 6px;border-bottom:1px solid var(--ln);text-align:left;font-size:16px}
+.mitem:last-child{border:0}.mitem svg{width:22px;height:22px;color:var(--mu)}.mitem.red{color:var(--bad)}.mitem.red svg{color:var(--bad)}
+.mitem.sel{color:var(--ac);font-weight:700}
+/* forms */
+.fld{margin-bottom:14px}.fld label{display:block;font-size:13px;color:var(--mu);margin-bottom:6px}
+.inp,select.inp{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--ln);background:var(--in);outline:none;appearance:none}
+.inp:focus{border-color:var(--ac)}
+.search{width:100%;padding:12px 14px 12px 14px;border-radius:12px;border:0;background:var(--in);outline:none;margin-bottom:10px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:6px;scrollbar-width:none;flex:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{white-space:nowrap;padding:7px 14px;border-radius:20px;background:var(--in);font-size:14px;font-weight:600}
+.chip.on{background:var(--ac);color:#fff}
+.list{flex:1;overflow-y:auto}
+.li{display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid var(--ln);width:100%;text-align:left}
+.li .t{flex:1;min-width:0}.li .t b{display:block;font-weight:600}.li .t small{color:var(--mu);font-size:13px}
+.li.sel{background:var(--acs);border-radius:12px}
+.ck{width:24px;height:24px;border-radius:50%;border:2px solid var(--ln);flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px}
+.li.sel .ck{background:var(--ac);border-color:var(--ac)}
+.imgpick{width:120px;height:120px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;background:var(--in);overflow:hidden;border:2px dashed var(--ln);flex-direction:column;color:var(--mu);font-size:13px}
+.imgpick img{width:100%;height:100%;object-fit:cover}
+.tog{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--ln)}
+.tog:last-child{border:0}
+.sw{width:50px;height:30px;border-radius:15px;background:var(--ln);position:relative;transition:.2s;flex:none}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.sw.on{background:var(--ok)}.sw.on::after{left:23px}
+.tog select{border:0;background:var(--in);padding:8px 10px;border-radius:10px}
+/* workout */
+.wohead .woclock{font-size:18px;font-weight:700}
+.woname{width:100%;border:0;background:transparent;font-size:22px;font-weight:800;outline:none;padding:4px 0}
+.wostats{margin:4px 0 14px;padding-bottom:12px;border-bottom:1px solid var(--ln)}
+.woex{margin-bottom:22px}
+.woexh{margin-bottom:6px}.exn{flex:1;font-size:18px}
+.note{width:100%;border:0;background:transparent;outline:none;color:var(--tx);padding:6px 0;font-size:15px}
+.note::placeholder{color:var(--mu)}
+.restlink{color:var(--ac);display:flex;align-items:center;gap:6px;padding:6px 0 10px;font-weight:500}
+.restlink svg{width:18px;height:18px}
+.sethead,.setrow{display:grid;grid-template-columns:42px 1.25fr 1fr 1fr 48px 44px;gap:6px;align-items:center}
+.sethead{font-size:12px;color:var(--mu);font-weight:600;text-align:center;margin-bottom:4px}
+.setrow{padding:4px 0;border-radius:10px;transition:background .2s}
+.setrow.done{background:var(--oks)}
+.setn{height:38px;border-radius:10px;background:var(--in);font-weight:700}
+.setn.warm{color:var(--warn)}
+.prev{font-size:13px;color:var(--mu);line-height:1.15;padding:2px}
+.prev i{font-style:normal;color:var(--warn)}
+.setrow input{width:100%;height:38px;text-align:center;border-radius:10px;border:1px solid var(--ln);background:var(--card);outline:none;font-weight:600;min-width:0}
+.setrow input:focus{border-color:var(--ac)}
+.setrow input::placeholder{color:var(--mu);opacity:.6;font-weight:500}
+.rpe,.chk{height:38px;border-radius:10px;background:var(--in);font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center}
+.rpe svg{width:20px;height:20px;color:var(--mu)}
+.chk{color:var(--mu);font-size:18px}
+.setrow.done .chk{background:var(--ok);color:#fff}
+.setrow.done input,.setrow.done .setn,.setrow.done .rpe{background:transparent;border-color:transparent}
+.r1{color:#16a34a}.r2{color:#ca8a04}.r3{color:#ea580c}.r4{color:#dc2626}
+.rpegrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:10px 0}
+.rpegrid button{padding:12px 0;border-radius:12px;background:var(--in);font-size:20px;font-weight:800}
+.rpegrid button.on{outline:3px solid var(--ac)}
+.rpelab{text-align:center;min-height:24px;font-weight:600;margin-bottom:8px}
+.shake{animation:sh .3s}@keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+/* rest bar */
+#restbar{position:fixed;left:0;right:0;z-index:9000;display:none;background:var(--card);border-top:1px solid var(--ln);padding:10px 14px calc(10px + var(--sb));box-shadow:0 -6px 20px rgba(0,0,0,.12)}
+#restbar.on{display:block;bottom:calc(var(--nav) + var(--sb) + 76px);padding-bottom:10px;margin:0 10px;border-radius:18px;border:1px solid var(--ln)}
+#restbar.on.inwo{bottom:0;margin:0;border-radius:18px 18px 0 0;padding-bottom:calc(10px + var(--sb))}
+.rprog{height:6px;border-radius:3px;background:var(--in);overflow:hidden;margin-bottom:8px}.rprog i{display:block;height:100%;background:var(--ac);transition:width .5s linear}
+.rt{flex:1;text-align:center}.rt small{display:block;font-size:12px;color:var(--mu)}.rt b{font-size:26px;font-variant-numeric:tabular-nums}
+/* stats */
+.seg{display:flex;gap:6px;margin-bottom:10px;overflow-x:auto}
+.seg button{padding:8px 14px;border-radius:20px;background:var(--in);font-weight:600;font-size:14px;white-space:nowrap}
+.seg button.on{background:var(--ac);color:#fff}
+canvas.ch{width:100%;height:190px;display:block}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-size:14px}
+.cal .h{font-size:11px;color:var(--mu);padding:4px 0}
+.cal .d{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:50%}
+.cal .d.w{background:var(--ac);color:#fff;font-weight:700}.cal .d.t{outline:2px solid var(--ac)}
+.mbar{margin:8px 0}.mbar .row{font-size:14px;margin-bottom:4px}.mbar .bar{height:10px;background:var(--in);border-radius:5px;overflow:hidden}.mbar .bar i{display:block;height:100%;background:var(--ac);border-radius:5px}
+.stat4{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stat4 div{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:12px}
+.stat4 span{display:block;font-size:12px;color:var(--mu)}.stat4 b{font-size:20px}
+.hist .hrow{display:flex;justify-content:space-between;font-size:14px;padding:3px 0}
+.bigimg{width:100%;max-height:260px;object-fit:contain;border-radius:16px;background:#fff;margin-bottom:12px}
+.ritem{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:10px;margin-bottom:8px}
+.ritem .t{flex:1;min-width:0}.ritem .t b{display:block;font-size:15px}
+.step{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--mu)}
+.step button{width:30px;height:30px;border-radius:8px;background:var(--in);font-weight:800;color:var(--tx)}
+.step b{min-width:22px;text-align:center;color:var(--tx);font-size:15px}
+.pr{background:#fef3c7;color:#92400e;border-radius:12px;padding:10px 12px;margin-bottom:8px;font-weight:600}
+@media (prefers-color-scheme:dark){.pr{background:#3a2c0a;color:#fcd34d}}
+#toast{position:fixed;left:50%;top:calc(var(--st) + 20px);transform:translate(-50%,-80px);background:#111827;color:#fff;padding:12px 18px;border-radius:12px;z-index:99999;transition:transform .25s;max-width:90%;text-align:center;font-size:15px}
+#toast.on{transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<main id="main"></main>
+<div id="mini"></div>
+<nav id="nav">
+  <button data-go="tab:home" data-t="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Бош саҳифа</button>
+  <button data-go="tab:workout" data-t="workout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/></svg>Машғулот</button>
+  <button data-go="tab:stats" data-t="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></svg>Таҳлил</button>
+  <button data-go="tab:profile" data-t="profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Профил</button>
+</nav>
+<div id="restbar"></div>
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* ====== АСОС ====== */
+const $=s=>document.querySelector(s);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const fmtNum=n=>String(Math.round(n||0)).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+const fmtKg=n=>String(Math.round((+n||0)*100)/100);
+const num=v=>{const x=parseFloat(String(v).replace(',','.'));return isFinite(x)?x:0};
+const WD=['Якшанба','Душанба','Сешанба','Чоршанба','Пайшанба','Жума','Шанба'];
+const WDS=['Ду','Се','Чо','Па','Жу','Ша','Як'];
+const MON=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
+function clock(ms){const s=Math.max(0,Math.floor(ms/1000)),h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return h?`${h}:${pad(m)}:${pad(x)}`:`${m}:${pad(x)}`}
+function fmtDur(ms){const m=Math.round(ms/60000);if(m<1)return Math.round(ms/1000)+' сония';const h=Math.floor(m/60);return h?`${h} соат ${m%60} дақ`:`${m} дақ`}
+function fmtRest(s){if(!s)return 'ўчиқ';if(s<60)return s+' сония';return s%60?`${Math.floor(s/60)}:${pad(s%60)} дақ`:`${s/60} дақ`}
+function fmtDate(t,time=true){const d=new Date(t),n=new Date();return `${WD[d.getDay()]}, ${d.getDate()} ${MON[d.getMonth()]}${d.getFullYear()!==n.getFullYear()?' '+d.getFullYear():''}${time?`, ${pad(d.getHours())}:${pad(d.getMinutes())}`:''}`}
+function shortDate(t){const d=new Date(t);return `${d.getDate()}.${pad(d.getMonth()+1)}`}
+function dayKey(t){const d=new Date(t);return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`}
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),2200)}
+
+const IC={
+ back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>',
+ down:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>',
+ up:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 15l6-6 6 6"/></svg>',
+ timer:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>',
+ dots:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>',
+ hdots:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>',
+ gauge:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 17a8 8 0 1 1 16 0"/><path d="M12 17l3-5"/><circle cx="12" cy="17" r="1.5"/></svg>',
+ trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
+ edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>',
+ copy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg>',
+ swap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 4 3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg>',
+ plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+ list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 9h6M9 13h6M9 17h4"/></svg>',
+ dumb:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/></svg>',
+ body:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="4.5" r="2"/><path d="M5 9h14M12 9v5M9 22l3-8 3 8"/></svg>',
+ cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+ save:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>',
+ load:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 21V9M7 14l5-5 5 5M5 3h14"/></svg>',
+ chart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></svg>',
+ warm:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3c3 4 5 6 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"/></svg>',
+ play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'
+};
+
+const MUSCLES=['Кўкрак','Елка','Орқа','Бицепс','Трицепс','Сон олди','Сон орқа','Думба','Болдир','Қорин','Бутун тана','Кардио'];
+const MCOL={'Кўкрак':'#ef4444','Елка':'#f97316','Орқа':'#3b82f6','Бицепс':'#8b5cf6','Трицепс':'#a855f7','Сон олди':'#10b981','Сон орқа':'#14b8a6','Думба':'#ec4899','Болдир':'#84cc16','Қорин':'#eab308','Бутун тана':'#64748b','Кардио':'#06b6d4'};
+const EQUIP=['Штанга','Гантел','Тренажёр','Блок (трос)','Ўз вазни','Гиря','Бошқа'];
+const RPE_L={1:'Жуда енгил',2:'Жуда енгил',3:'Енгил',4:'Енгил',5:'Ўртачадан енгил',6:'Ўртача',7:'Бироз оғир',8:'Оғир (2 та заҳира қолди)',9:'Жуда оғир (1 та заҳира қолди)',10:'Максимал — бошқа қила олмайман'};
+const rpeCls=r=>!r?'':r<=5?'r1':r<=7?'r2':r<=8?'r3':'r4';
+
+const DEF=[
+['sq','Штанга билан ўтириш','Squat (Barbell)','Сон олди','Штанга'],
+['bp','Ётиб штанга сиқиш','Bench Press (Barbell)','Кўкрак','Штанга'],
+['rdl','Румин становойи','Romanian Deadlift (Barbell)','Сон орқа','Штанга'],
+['dl','Становой тортиш','Deadlift (Barbell)','Думба','Штанга'],
+['lat','Юқори блокни тортиш','Lat Pulldown (Cable)','Орқа','Блок (трос)'],
+['row','Ўтириб блок тортиш','Seated Cable Row','Орқа','Блок (трос)'],
+['gsq','Гоблет ўтириш','Goblet Squat','Сон олди','Гантел'],
+['pu','Турникда тортилиш (юк билан)','Pull Up (Weighted)','Орқа','Ўз вазни'],
+['cpu','Чапак билан отжимание','Clap Push Ups','Кўкрак','Ўз вазни'],
+['ohp','Тик туриб штанга сиқиш','Overhead Press','Елка','Штанга'],
+['dbp','Ётиб гантел сиқиш','Dumbbell Bench Press','Кўкрак','Гантел'],
+['lr','Гантелни ёнга кўтариш','Lateral Raise','Елка','Гантел'],
+['bc','Бицепсга штанга кўтариш','Barbell Curl','Бицепс','Штанга'],
+['hc','Болғача (гантел)','Hammer Curl','Бицепс','Гантел'],
+['tpd','Блокда трицепс','Triceps Pushdown','Трицепс','Блок (трос)'],
+['dip','Брусда отжимание','Dips','Трицепс','Ўз вазни'],
+['lp','Оёқ пресси','Leg Press','Сон олди','Тренажёр'],
+['lun','Ҳамла (выпад)','Lunge','Думба','Гантел'],
+['lc','Оёқ букиш (тренажёр)','Leg Curl','Сон орқа','Тренажёр'],
+['cr','Болдир кўтариш','Calf Raise','Болдир','Тренажёр'],
+['cru','Қорин пресси','Crunch','Қорин','Ўз вазни'],
+['pl','Планка (такрор = сония)','Plank','Қорин','Ўз вазни']
+];
+
+/* ====== МАЪЛУМОТ ====== */
+const KEY='fitnes_v1',AKEY='fitnes_active_v1';
+let S,A=null;
+function seed(){
+ const ex=DEF.map(d=>({id:d[0],name:d[1],en:d[2],muscle:d[3],equip:d[4],img:'',rest:0}));
+ const r=(name,ids)=>({id:uid(),name,items:ids.map(i=>({exId:i,sets:4,rest:120}))});
+ return {exercises:ex,routines:[r('Душанба',['sq','bp','rdl']),r('Чоршанба',['dl','lat','row']),r('Жума',['gsq','pu','rdl'])],workouts:[],measures:[],settings:{}};
+}
+function load(){
+ try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}
+ if(!S||!S.exercises)S=seed();
+ ['exercises','routines','workouts','measures'].forEach(k=>S[k]=S[k]||[]);
+ S.settings=Object.assign({rest:120,goal:3,sound:true,vib:true,wake:true},S.settings||{});
+ try{A=JSON.parse(localStorage.getItem(AKEY))}catch(e){A=null}
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('⚠️ Хотира тўлди! Расмларни камайтиринг ёки захира олинг')}}
+function saveA(){try{A?localStorage.setItem(AKEY,JSON.stringify(A)):localStorage.removeItem(AKEY)}catch(e){}}
+const getEx=id=>S.exercises.find(e=>e.id===id);
+const exName=e=>(getEx(e.exId)||{}).name||e.name||'Ўчирилган машқ';
+const exRest=id=>{const e=getEx(id);return e&&e.rest?e.rest:S.settings.rest};
+const normal=sets=>sets.filter(s=>s.type!=='w');
+const e1rm=s=>s.reps>0&&s.kg>0?(s.reps===1?s.kg:s.kg*(1+s.reps/30)):0;
+function wVol(w){return w.exercises.reduce((a,e)=>a+normal(e.sets).reduce((b,s)=>b+s.kg*s.reps,0),0)}
+function wSets(w){return w.exercises.reduce((a,e)=>a+normal(e.sets).length,0)}
+function wReps(w){return w.exercises.reduce((a,e)=>a+normal(e.sets).reduce((b,s)=>b+s.reps,0),0)}
+function prevSets(exId){for(let i=S.workouts.length-1;i>=0;i--){const e=S.workouts[i].exercises.find(x=>x.exId===exId);if(e)return e.sets}return []}
+function thumb(id,sz=40){const e=getEx(id);const st=`width:${sz}px;height:${sz}px;font-size:${Math.round(sz*.42)}px`;
+ if(e&&e.img)return `<span class="th" style="${st}"><img src="${e.img}" alt=""></span>`;
+ const n=e?e.name:'?';return `<span class="th" style="${st};background:${MCOL[e&&e.muscle]||'#94a3b8'}">${esc(n.trim()[0]||'?').toUpperCase()}</span>`}
+
+/* ====== ҚАТЛАМЛАР (саҳифа/ойна) ва орқага тугма ====== */
+const layers=[];let guard=false,ignorePop=false,zTop=100;
+function addLayer(el,onClose){el.style.zIndex=++zTop;document.body.appendChild(el);const l={el,onClose};layers.push(l);if(!guard){history.pushState({g:1},'');guard=true}return l}
+function removeLayer(l,fromPop){const i=layers.indexOf(l);if(i<0)return;layers.splice(i,1);
+ if(l.el.classList.contains('sheetbg')){l.el.classList.remove('on');setTimeout(()=>l.el.remove(),200)}else l.el.remove();
+ l.onClose&&l.onClose();
+ if(!fromPop&&!layers.length)setTimeout(()=>{if(!layers.length&&guard){guard=false;ignorePop=true;history.back()}},60)}
+function closeTop(){const l=layers[layers.length-1];if(l)removeLayer(l)}
+window.addEventListener('popstate',()=>{if(ignorePop){ignorePop=false;return}guard=false;const l=layers[layers.length-1];if(l){removeLayer(l,true);if(layers.length){history.pushState({g:1},'');guard=true}}});
+function openSheet(html,opt={}){const bg=document.createElement('div');bg.className='sheetbg';bg.innerHTML=`<div class="sheet ${opt.full?'full':''}"><div class="grab"></div>${html}</div>`;
+ const l=addLayer(bg,opt.onClose);bg.addEventListener('click',e=>{if(e.target===bg)removeLayer(l)});requestAnimationFrame(()=>bg.classList.add('on'));const sh=bg.firstChild;sh._l=l;return sh}
+function closeSheet(sh){if(sh&&sh._l)removeLayer(sh._l)}
+function openPage(title,body,{right='',refresh}={}){const p=document.createElement('div');p.className='page';
+ const draw=()=>{const b=p.querySelector('.pbody');const sc=b?b.scrollTop:0;p.innerHTML=`<div class="phead"><button class="ib" data-go="closeTop">${IC.back}</button><h2>${title()}</h2>${right?right():'<span class="ib"></span>'}</div><div class="pbody">${body()}</div>`;p.querySelector('.pbody').scrollTop=sc;refresh&&refresh(p)};
+ p._refresh=draw;draw();addLayer(p);return p}
+function refreshAll(){render();layers.forEach(l=>l.el._refresh&&l.el._refresh())}
+function menu(items,title=''){const sh=openSheet((title?`<div class="shead"><b>${title}</b></div>`:'')+items.map((it,i)=>`<button class="mitem ${it.cls||''}" data-i="${i}">${it.icon||''}${it.t}</button>`).join(''));
+ sh.addEventListener('click',e=>{const b=e.target.closest('[data-i]');if(!b)return;closeSheet(sh);setTimeout(()=>items[+b.dataset.i].f(),10)})}
+function ask(text,yes='Ҳа',danger=true,no='Бекор қилиш'){return new Promise(res=>{let r=false;const sh=openSheet(`<div style="padding:8px 4px 4px;font-size:17px;text-align:center;margin-bottom:16px">${text}</div><button class="btn ${danger?'danger':'primary'} block" data-y>${yes}</button><button class="btn light block" data-n>${no}</button>`,{onClose:()=>res(r)});
+ sh.querySelector('[data-y]').onclick=()=>{r=true;closeSheet(sh)};sh.querySelector('[data-n]').onclick=()=>closeSheet(sh)})}
+
+/* ====== ГЛОБАЛ ҲОДИСАЛАР ====== */
+const GO={};
+document.addEventListener('click',e=>{const t=e.target.closest('[data-go]');if(!t)return;const [fn,...a]=t.dataset.go.split(':');if(GO[fn]){e.stopPropagation();GO[fn](...a,t)}});
+document.addEventListener('input',e=>{const t=e.target,d=t.dataset;if(!A)return;
+ if(d.sf){A.exercises[+d.e].sets[+d.s][d.sf]=t.value.replace(',','.');saveA();updWoStats()}
+ else if(d.ef){A.exercises[+d.e][d.ef]=t.value;saveA()}
+ else if(d.wf){A[d.wf]=t.value;saveA()}});
+GO.closeTop=()=>closeTop();
+GO.tab=t=>{tab=t;render();scrollTo(0,0)};
+
+/* ====== АСОСИЙ РЕНДЕР ====== */
+let tab='home';
+function render(){const m=$('#main');({home:rHome,workout:rWorkout,stats:rStats,profile:rProfile})[tab](m);
+ document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));rMini();rRest()}
+
+function weekStart(t){const d=new Date(t);d.setHours(0,0,0,0);d.setDate(d.getDate()-(d.getDay()+6)%7);return d}
+function weekRange(off){const s=weekStart(Date.now());s.setDate(s.getDate()-7*off);const e=new Date(s);e.setDate(e.getDate()+7);return [s.getTime(),e.getTime()]}
+function inRange(a,b){return S.workouts.filter(w=>w.start>=a&&w.start<b)}
+function streak(){let n=0,off=inRange(...weekRange(0)).length?0:1;while(inRange(...weekRange(off)).length){n++;off++}return n}
+
+function wCard(w){const more=w.exercises.length-4;
+ return `<div class="card wcard" data-go="wDetail:${w.id}"><div class="row between"><b style="font-size:18px">${esc(w.name)}</b><span class="mu">${IC.hdots.replace('<svg','<svg width="20"')}</span></div>
+ <div class="mu sm">${fmtDate(w.start)}</div>
+ <div class="kv"><div><span>Вақт</span><b>${fmtDur(w.end-w.start)}</b></div><div><span>Ҳажм</span><b>${fmtNum(wVol(w))} кг</b></div><div><span>Сетлар</span><b>${wSets(w)}</b></div></div>
+ <div class="exl">${w.exercises.slice(0,4).map(e=>`<div class="row">${thumb(e.exId,28)}<span>${e.sets.length} × ${esc(exName(e))}</span></div>`).join('')}${more>0?`<div class="mu sm" style="padding-top:4px">яна ${more} та машқ</div>`:''}</div></div>`}
+
+function rHome(m){const [a,b]=weekRange(0);const ws=inRange(a,b);const goal=S.settings.goal;
+ const dur=ws.reduce((x,w)=>x+w.end-w.start,0),vol=ws.reduce((x,w)=>x+wVol(w),0),sets=ws.reduce((x,w)=>x+wSets(w),0);
+ const list=S.workouts.slice().reverse().slice(0,30);
+ m.innerHTML=`<header class="top"><h1>Фитнес</h1></header><div class="wrap">
+ <div class="card"><div class="row between"><div><div class="mu sm">Бу ҳафта</div><div class="big">${ws.length} / ${goal} <small>машғулот</small></div></div>
+ <div class="streak"><b>🔥 ${streak()}</b><small>ҳафта кетма-кет</small></div></div>
+ <div class="dots">${Array.from({length:goal},(_,i)=>`<i class="${i<ws.length?'on':''}"></i>`).join('')}</div>
+ <div class="grid3"><div><b>${fmtDur(dur)}</b><span>Вақт</span></div><div><b>${fmtNum(vol)} кг</b><span>Ҳажм</span></div><div><b>${sets}</b><span>Сетлар</span></div></div></div>
+ ${A?'':nextRoutineCard()}
+ <h3 class="sec">Сўнгги машғулотлар</h3>
+ ${list.length?list.map(wCard).join(''):`<div class="empty">Ҳали машғулот йўқ.<br>«Машғулот» бўлимидан дастурни бошланг 💪</div>`}
+ </div>`}
+function nextRoutineCard(){const today=WD[new Date().getDay()].toLowerCase();
+ const r=S.routines.find(r=>r.name.toLowerCase().replace('дуйшанба','душанба').includes(today));
+ if(r)return `<div class="card rcard"><div class="mu sm">Бугунги дастур</div><h3>${esc(r.name)}</h3><p>${esc(r.items.map(i=>(getEx(i.exId)||{}).name).filter(Boolean).join(', '))}</p><button class="btn primary block" style="margin:0" data-go="startR:${r.id}">${IC.play} Бошлаш</button></div>`;
+ return `<button class="btn primary block" data-go="startEmpty">${IC.plus} Бўш машғулот бошлаш</button>`}
+
+function rWorkout(m){m.innerHTML=`<header class="top"><h1>Машғулот</h1></header><div class="wrap">
+ <button class="btn light block" style="justify-content:flex-start;padding:16px" data-go="startEmpty">${IC.plus} Бўш машғулот бошлаш</button>
+ <div class="row between" style="margin:18px 4px 10px"><b style="font-size:20px">Дастурлар</b></div>
+ <div class="grid2" style="margin-bottom:14px"><button class="tile" data-go="routineEdit">${IC.list} Янги дастур</button><button class="tile" data-go="library">${IC.dumb} Машқлар</button></div>
+ ${S.routines.length?S.routines.map(r=>`<div class="card rcard"><div class="row between"><h3>${esc(r.name)}</h3><button class="ib" data-go="rMenu:${r.id}">${IC.hdots}</button></div>
+ <p>${esc(r.items.map(i=>(getEx(i.exId)||{}).name).filter(Boolean).join(', '))||'Машқ йўқ'}</p>
+ <button class="btn primary block" style="margin:0" data-go="startR:${r.id}">Бошлаш</button></div>`).join(''):`<div class="empty">Дастур йўқ. «Янги дастур» тугмасини босинг.</div>`}
+ </div>`}
+
+/* ====== МАШҚЛАР КУТУБХОНАСИ ====== */
+GO.library=()=>{let q='',mf='';const p=openPage(()=>'Машқлар',()=>`<input class="search" placeholder="🔍 Машқ қидириш" id="lq" value="${esc(q)}">
+ <div class="chips">${['',...MUSCLES].map(x=>`<button class="chip ${x===mf?'on':''}" data-m="${x}">${x||'Барча мушаклар'}</button>`).join('')}</div>
+ <div id="ll">${libList(q,mf)}</div>`,{right:()=>`<button class="btn sm acc" style="background:none" data-go="exEdit">Яратиш</button>`,
+ refresh:pg=>{const i=pg.querySelector('#lq');i.oninput=()=>{q=i.value;pg.querySelector('#ll').innerHTML=libList(q,mf)};
+  pg.querySelectorAll('[data-m]').forEach(c=>c.onclick=()=>{mf=c.dataset.m;pg._refresh()})}})};
+function libFilter(q,mf){q=q.trim().toLowerCase();return S.exercises.filter(e=>(!mf||e.muscle===mf)&&(!q||(e.name+' '+(e.en||'')).toLowerCase().includes(q))).sort((a,b)=>a.name.localeCompare(b.name))}
+function libList(q,mf){const used=new Set();for(let i=S.workouts.length-1;i>=0&&used.size<8;i--)S.workouts[i].exercises.forEach(e=>used.add(e.exId));
+ const all=libFilter(q,mf);const rec=(!q&&!mf)?[...used].map(getEx).filter(Boolean):[];
+ const row=e=>`<button class="li" data-go="exDetail:${e.id}">${thumb(e.id,48)}<span class="t"><b>${esc(e.name)}</b><small>${esc(e.muscle)} · ${esc(e.equip)}${e.en?' · '+esc(e.en):''}</small></span><span class="mu">›</span></button>`;
+ return (rec.length?`<div class="sec">Сўнгги машқлар</div>${rec.map(row).join('')}<div class="sec">Барча машқлар</div>`:'')+(all.map(row).join('')||'<div class="empty">Топилмади</div>')}
+
+GO.exEdit=(id)=>openExEdit(id);
+function openExEdit(id,onSaved){const e=id?getEx(id):null;let img=e?e.img:'';
+ const sh=openSheet(`<div class="shead"><button class="ib" data-c>✕</button><b>${e?'Машқни таҳрирлаш':'Янги машқ'}</b><button class="btn primary sm" data-s>Сақлаш</button></div>
+ <button class="imgpick" data-img>${img?`<img src="${img}">`:'📷<br>Расм қўшиш'}</button>
+ <div class="fld"><label>Машқ номи</label><input class="inp" data-n value="${esc(e?e.name:'')}" placeholder="Масалан: Штанга билан ўтириш"></div>
+ <div class="fld"><label>Асосий мушак</label><select class="inp" data-m>${MUSCLES.map(x=>`<option ${e&&e.muscle===x?'selected':''}>${x}</option>`).join('')}</select></div>
+ <div class="fld"><label>Жиҳоз</label><select class="inp" data-q>${EQUIP.map(x=>`<option ${e&&e.equip===x?'selected':''}>${x}</option>`).join('')}</select></div>
+ <div class="fld"><label>Дам олиш вақти (сетлар орасида)</label><select class="inp" data-r>${[0,30,45,60,90,120,150,180,240,300].map(s=>`<option value="${s}" ${(e?e.rest:0)===s?'selected':''}>${s?fmtRest(s):'Умумий созламадан ('+fmtRest(S.settings.rest)+')'}</option>`).join('')}</select></div>
+ ${img?'<button class="btn danger-t block" data-ri>Расмни олиб ташлаш</button>':''}
+ ${e?'<button class="btn danger-t block" data-d>Машқни ўчириш</button>':''}`);
+ const q=s=>sh.querySelector(s);
+ q('[data-c]').onclick=()=>closeSheet(sh);
+ q('[data-img]').onclick=()=>pickImage(d=>{img=d;q('[data-img]').innerHTML=`<img src="${d}">`});
+ if(q('[data-ri]'))q('[data-ri]').onclick=()=>{img='';q('[data-img]').innerHTML='📷<br>Расм қўшиш'};
+ q('[data-s]').onclick=()=>{const name=q('[data-n]').value.trim();if(!name){q('[data-n]').classList.add('shake');toast('Машқ номини киритинг');return}
+  const o=e||{id:uid()};Object.assign(o,{name,muscle:q('[data-m]').value,equip:q('[data-q]').value,rest:+q('[data-r]').value,img});
+  if(!e)S.exercises.push(o);save();closeSheet(sh);toast('Сақланди ✓');refreshAll();onSaved&&onSaved(o)};
+ if(q('[data-d]'))q('[data-d]').onclick=async()=>{closeSheet(sh);if(!await ask(`«${esc(e.name)}» ўчирилсинми?<br><small class="mu">Ўтган машғулотлар тарихи сақланиб қолади.</small>`,'Ўчириш'))return;
+  S.workouts.forEach(w=>w.exercises.forEach(x=>{if(x.exId===e.id)x.name=e.name}));
+  S.exercises=S.exercises.filter(x=>x!==e);S.routines.forEach(r=>r.items=r.items.filter(i=>i.exId!==e.id));save();
+  const top=layers[layers.length-1];if(top&&top.el._exId===e.id)closeTop();refreshAll()};
+}
+function pickImage(cb){const inp=document.createElement('input');inp.type='file';inp.accept='image/*';
+ inp.onchange=()=>{const f=inp.files[0];if(!f)return;const url=URL.createObjectURL(f);const im=new Image();
+  im.onload=()=>{const M=400,sc=Math.min(1,M/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);
+   const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(url);cb(c.toDataURL('image/jpeg',.75))};
+  im.onerror=()=>toast('Расмни очиб бўлмади');im.src=url};inp.click()}
+
+/* машқ танлагич */
+function pickExercises(cb,multi=true){let sel=[],q='',mf='';
+ const sh=openSheet(`<div class="shead"><button class="ib" data-c>✕</button><b>Машқ танлаш</b><button class="btn primary sm" data-ok>Қўшиш</button></div>
+ <input class="search" placeholder="🔍 Қидириш" data-q><div class="chips" data-ch></div><div class="list" data-l></div>
+ <button class="btn light block" style="margin-top:8px" data-new>${IC.plus} Янги машқ яратиш</button>`,{full:true});
+ const Q=s=>sh.querySelector(s);
+ const draw=()=>{Q('[data-ch]').innerHTML=['',...MUSCLES].map(x=>`<button class="chip ${x===mf?'on':''}" data-m="${x}">${x||'Барчаси'}</button>`).join('');
+  Q('[data-l]').innerHTML=libFilter(q,mf).map(e=>{const i=sel.indexOf(e.id);return `<button class="li ${i>=0?'sel':''}" data-id="${e.id}">${thumb(e.id,44)}<span class="t"><b>${esc(e.name)}</b><small>${esc(e.muscle)} · ${esc(e.equip)}</small></span><span class="ck">${i>=0?i+1:''}</span></button>`}).join('')||'<div class="empty">Топилмади</div>';
+  Q('[data-ok]').textContent=sel.length?`Қўшиш (${sel.length})`:'Қўшиш'};
+ draw();Q('[data-q]').oninput=ev=>{q=ev.target.value;draw()};
+ Q('[data-ch]').onclick=ev=>{const c=ev.target.closest('[data-m]');if(c){mf=c.dataset.m;draw()}};
+ Q('[data-l]').onclick=ev=>{const b=ev.target.closest('[data-id]');if(!b)return;const id=b.dataset.id;
+  if(!multi){closeSheet(sh);cb([id]);return}const i=sel.indexOf(id);i>=0?sel.splice(i,1):sel.push(id);draw()};
+ Q('[data-c]').onclick=()=>closeSheet(sh);
+ Q('[data-ok]').onclick=()=>{if(!sel.length){toast('Машқ танланг');return}closeSheet(sh);cb(sel)};
+ Q('[data-new]').onclick=()=>openExEdit(null,o=>{if(multi){sel.push(o.id);draw()}else{closeSheet(sh);cb([o.id])}})}
+
+/* ====== ДАСТУРЛАР ====== */
+GO.rMenu=id=>{const r=S.routines.find(x=>x.id===id);menu([
+ {t:'Таҳрирлаш',icon:IC.edit,f:()=>GO.routineEdit(id)},
+ {t:'Нусха олиш',icon:IC.copy,f:()=>{const c=JSON.parse(JSON.stringify(r));c.id=uid();c.name+=' (нусха)';S.routines.splice(S.routines.indexOf(r)+1,0,c);save();render()}},
+ {t:'Юқорига',icon:IC.up,f:()=>{const i=S.routines.indexOf(r);if(i>0){S.routines.splice(i,1);S.routines.splice(i-1,0,r);save();render()}}},
+ {t:'Пастга',icon:IC.down,f:()=>{const i=S.routines.indexOf(r);if(i<S.routines.length-1){S.routines.splice(i,1);S.routines.splice(i+1,0,r);save();render()}}},
+ {t:'Ўчириш',icon:IC.trash,cls:'red',f:async()=>{if(await ask(`«${esc(r.name)}» дастури ўчирилсинми?`,'Ўчириш')){S.routines=S.routines.filter(x=>x!==r);save();render()}}}
+],esc(r.name))};
+GO.routineEdit=id=>{const orig=id?S.routines.find(x=>x.id===id):null;const r=orig?JSON.parse(JSON.stringify(orig)):{id:uid(),name:'',items:[]};
+ const p=openPage(()=>orig?'Дастурни таҳрирлаш':'Янги дастур',()=>`
+ <div class="fld"><label>Дастур номи</label><input class="inp" data-rn value="${esc(r.name)}" placeholder="Масалан: Душанба — оёқ ва кўкрак"></div>
+ <div class="sec">Машқлар (${r.items.length})</div>
+ ${r.items.map((it,i)=>`<div class="ritem">${thumb(it.exId,44)}<div class="t"><b>${esc((getEx(it.exId)||{}).name||'?')}</b>
+  <div class="row" style="gap:14px;margin-top:6px"><span class="step">Сет: <button data-ri="sets:${i}:-1">−</button><b>${it.sets}</b><button data-ri="sets:${i}:1">+</button></span>
+  <button class="step" data-ri="rest:${i}">⏱ <b style="min-width:auto">${fmtRest(it.rest)}</b></button></div></div>
+  <div style="display:flex;flex-direction:column"><button class="ib" style="height:30px" data-ri="up:${i}">${IC.up}</button><button class="ib" style="height:30px" data-ri="dn:${i}">${IC.down}</button></div>
+  <button class="ib trash" data-ri="del:${i}">${IC.trash}</button></div>`).join('')}
+ <button class="btn light block" data-ri="add">${IC.plus} Машқ қўшиш</button>`,
+ {right:()=>`<button class="btn primary sm" data-ri="save">Сақлаш</button>`,
+ refresh:pg=>{pg.querySelector('[data-rn]').oninput=ev=>r.name=ev.target.value;
+  pg.onclick=ev=>{const b=ev.target.closest('[data-ri]');if(!b)return;const [a,i,d]=b.dataset.ri.split(':');const it=r.items[+i];
+   if(a==='sets'){it.sets=Math.max(1,Math.min(20,it.sets+ +d));pg._refresh()}
+   else if(a==='rest'){menu([0,30,45,60,90,120,150,180,240,300].map(s=>({t:fmtRest(s),cls:s===it.rest?'sel':'',f:()=>{it.rest=s;pg._refresh()}})),'Дам олиш вақти')}
+   else if(a==='up'&&+i>0){r.items.splice(+i,1);r.items.splice(+i-1,0,it);pg._refresh()}
+   else if(a==='dn'&&+i<r.items.length-1){r.items.splice(+i,1);r.items.splice(+i+1,0,it);pg._refresh()}
+   else if(a==='del'){r.items.splice(+i,1);pg._refresh()}
+   else if(a==='add')pickExercises(ids=>{ids.forEach(x=>{const ps=normal(prevSets(x)).length;r.items.push({exId:x,sets:ps||3,rest:exRest(x)})});pg._refresh()});
+   else if(a==='save'){if(!r.name.trim()){toast('Дастур номини киритинг');return}if(!r.items.length){toast('Камида битта машқ қўшинг');return}
+    r.name=r.name.trim();if(orig)Object.assign(orig,r);else S.routines.push(r);save();closeTop();tab='workout';render();toast('Дастур сақланди ✓')}}}})};
+
+/* ====== ФАОЛ МАШҒУЛОТ ====== */
+function newWoEx(exId,n,rest){const prev=prevSets(exId);const cnt=n||Math.max(prev.length,3);const sets=[];
+ for(let i=0;i<cnt;i++)sets.push({kg:'',reps:'',rpe:'',type:prev[i]&&prev[i].type==='w'?'w':'n',done:false});
+ return {exId,note:'',rest:rest??exRest(exId),sets}}
+async function startWorkout(r){
+ if(A){if(!await ask('Бошқа машғулот давом этмоқда.<br>Уни бекор қилиб, янгисини бошлайми?','Ҳа, янгисини бошлаш'))return}
+ A={id:uid(),name:r?r.name:WD[new Date().getDay()]+' машғулоти',routineId:r?r.id:null,start:Date.now(),open:true,rest:null,exercises:[]};
+ if(r)r.items.forEach(it=>{if(getEx(it.exId))A.exercises.push(newWoEx(it.exId,it.sets,it.rest))});
+ saveA();openWo();if(!r)setTimeout(()=>GO.woAddEx(),250)}
+GO.startEmpty=()=>startWorkout(null);
+GO.startR=id=>startWorkout(S.routines.find(r=>r.id===id));
+function openWo(){if(!A)return;A.open=true;saveA();let el=$('#wo');if(!el){el=document.createElement('div');el.className='page';el.id='wo';el._refresh=rWo;
+ addLayer(el,()=>{if(A){A.open=false;saveA()}rMini();rRest()})}rWo();rMini();rRest();wake()}
+GO.openWo=openWo;
+GO.minWo=()=>{const el=$('#wo');const l=layers.find(x=>x.el===el);if(l)removeLayer(l)};
+function woStats(){let v=0,n=0;A.exercises.forEach(e=>e.sets.forEach(s=>{if(s.done){n++;if(s.type!=='w')v+=num(s.kg)*num(s.reps)}}));return {v,n}}
+function updWoStats(){const s=woStats();const a=$('#woVol'),b=$('#woSets');if(a)a.textContent=fmtNum(s.v)+' кг';if(b)b.textContent=s.n}
+function rWo(){const el=$('#wo');if(!el||!A)return;const bd=el.querySelector('.pbody');const sc=bd?bd.scrollTop:0;
+ el.innerHTML=`<div class="phead wohead"><button class="ib" data-go="minWo">${IC.down}</button><span class="woclock acc"></span><span class="sp"></span>
+ <button class="ib" data-go="restMenu">${IC.timer}</button><button class="btn primary sm" data-go="finishWo">Тугатиш</button></div>
+ <div class="pbody"><input class="woname" value="${esc(A.name)}" data-wf="name">
+ <div class="kv wostats"><div><span>Давомийлик</span><b class="woclock acc"></b></div><div><span>Ҳажм</span><b id="woVol"></b></div><div><span>Сетлар</span><b id="woSets"></b></div></div>
+ ${A.exercises.map(woEx).join('')||'<div class="empty">Машқ қўшинг</div>'}
+ <button class="btn primary block" data-go="woAddEx">${IC.plus} Машқ қўшиш</button>
+ <button class="btn danger-t block" data-go="discardWo">Машғулотни бекор қилиш</button><div style="height:150px"></div></div>`;
+ el.querySelector('.pbody').scrollTop=sc;updWoStats();tick()}
+function woEx(e,ei){const prev=prevSets(e.exId);let n=0;
+ return `<div class="woex"><div class="row woexh">${thumb(e.exId,46)}<b class="acc exn" data-go="exDetail:${e.exId}">${esc(exName(e))}</b><button class="ib" data-go="woExMenu:${ei}">${IC.dots}</button></div>
+ <input class="note" placeholder="Изоҳ ёзинг..." value="${esc(e.note)}" data-ef="note" data-e="${ei}">
+ <button class="restlink" data-go="exRest:${ei}">${IC.timer} Дам олиш: ${fmtRest(e.rest)}</button>
+ <div class="sethead"><span>СЕТ</span><span>ОЛДИНГИ</span><span>КГ</span><span>ТАКРОР</span><span>БАҲО</span><span>✓</span></div>
+ ${e.sets.map((s,si)=>{const p=prev[si];const lab=s.type==='w'?'И':++n;return `<div class="setrow ${s.done?'done':''}">
+  <button class="setn ${s.type==='w'?'warm':''}" data-go="setMenu:${ei}:${si}">${lab}</button>
+  <button class="prev" data-go="usePrev:${ei}:${si}">${p?`${fmtKg(p.kg)}кг × ${p.reps}${p.rpe?` <i>@${p.rpe}</i>`:''}`:'—'}</button>
+  <input inputmode="decimal" value="${esc(s.kg)}" placeholder="${p?fmtKg(p.kg):'кг'}" data-sf="kg" data-e="${ei}" data-s="${si}">
+  <input inputmode="numeric" value="${esc(s.reps)}" placeholder="${p?p.reps:'0'}" data-sf="reps" data-e="${ei}" data-s="${si}">
+  <button class="rpe ${rpeCls(s.rpe)}" data-go="rpe:${ei}:${si}">${s.rpe||IC.gauge}</button>
+  <button class="chk" data-go="done:${ei}:${si}">✓</button></div>`}).join('')}
+ <button class="btn light block" style="margin-top:8px" data-go="addSet:${ei}">${IC.plus} Сет қўшиш</button></div>`}
+
+GO.done=(ei,si,btn)=>{const e=A.exercises[ei],s=e.sets[si];
+ if(s.done)s.done=false;else{const p=prevSets(e.exId)[si];
+  if(s.kg===''&&p)s.kg=String(p.kg);if(s.reps===''&&p)s.reps=String(p.reps);if(s.kg==='')s.kg='0';
+  if(!(num(s.reps)>0)){btn.closest('.setrow').classList.add('shake');toast('Такрор сонини киритинг');return}
+  s.done=true;vib(40);if(e.rest)startRest(e.rest)}
+ saveA();rWo()};
+GO.usePrev=(ei,si)=>{const e=A.exercises[ei],p=prevSets(e.exId)[si];if(!p)return;Object.assign(e.sets[si],{kg:String(p.kg),reps:String(p.reps),rpe:p.rpe||''});saveA();rWo()};
+GO.addSet=ei=>{const e=A.exercises[ei],l=e.sets[e.sets.length-1];e.sets.push({kg:l?l.kg:'',reps:l?l.reps:'',rpe:'',type:'n',done:false});saveA();rWo()};
+GO.setMenu=(ei,si)=>{const s=A.exercises[ei].sets[si];menu([
+ {t:'Оддий сет',cls:s.type!=='w'?'sel':'',f:()=>{s.type='n';saveA();rWo()}},
+ {t:'Иситиш сети (И) — ҳажмга қўшилмайди',icon:IC.warm,cls:s.type==='w'?'sel':'',f:()=>{s.type='w';saveA();rWo()}},
+ {t:'Сетни ўчириш',icon:IC.trash,cls:'red',f:()=>{A.exercises[ei].sets.splice(si,1);saveA();rWo()}}],'Сет '+(+si+1))};
+GO.rpe=(ei,si)=>{const s=A.exercises[ei].sets[si];
+ const sh=openSheet(`<div class="shead"><b>Қанчалик оғир бўлди?</b></div><div class="mu sm" style="text-align:center">1 — жуда енгил, 10 — бошқа бир марта ҳам кўтара олмайман</div>
+ <div class="rpegrid">${[1,2,3,4,5,6,7,8,9,10].map(i=>`<button class="${rpeCls(i)} ${+s.rpe===i?'on':''}" data-v="${i}">${i}</button>`).join('')}</div>
+ <div class="rpelab">${s.rpe?RPE_L[s.rpe]:''}</div><button class="btn light block" data-v="">Баҳони тозалаш</button>`);
+ sh.onclick=ev=>{const b=ev.target.closest('[data-v]');if(!b)return;s.rpe=b.dataset.v;sh.querySelector('.rpelab').textContent=s.rpe?RPE_L[s.rpe]:'';saveA();rWo();setTimeout(()=>closeSheet(sh),s.rpe?350:0)}};
+GO.exRest=ei=>{const e=A.exercises[ei];menu([0,30,45,60,90,120,150,180,240,300].map(s=>({t:fmtRest(s),cls:s===e.rest?'sel':'',f:()=>{e.rest=s;const x=getEx(e.exId);if(x){x.rest=s;save()}saveA();rWo()}})),'Дам олиш вақти')};
+GO.woExMenu=ei=>{ei=+ei;const e=A.exercises[ei];menu([
+ {t:'Юқорига',icon:IC.up,f:()=>{if(ei>0){A.exercises.splice(ei,1);A.exercises.splice(ei-1,0,e);saveA();rWo()}}},
+ {t:'Пастга',icon:IC.down,f:()=>{if(ei<A.exercises.length-1){A.exercises.splice(ei,1);A.exercises.splice(ei+1,0,e);saveA();rWo()}}},
+ {t:'Машқни алмаштириш',icon:IC.swap,f:()=>pickExercises(([id])=>{const n=newWoEx(id,e.sets.length);n.note=e.note;A.exercises[ei]=n;saveA();rWo()},false)},
+ {t:'Таҳлил ва тарих',icon:IC.chart,f:()=>GO.exDetail(e.exId)},
+ {t:'Машқни олиб ташлаш',icon:IC.trash,cls:'red',f:()=>{A.exercises.splice(ei,1);saveA();rWo()}}],esc(exName(e)))};
+GO.woAddEx=()=>pickExercises(ids=>{ids.forEach(id=>A.exercises.push(newWoEx(id)));saveA();rWo();
+ setTimeout(()=>{const b=$('#wo .pbody');if(b)b.scrollTop=b.scrollHeight},50)});
+GO.discardWo=async()=>{if(!await ask('Машғулот бекор қилинсинми?<br><small class="mu">Киритилган маълумотлар сақланмайди.</small>','Бекор қилиш'))return;
+ A=null;saveA();const el=$('#wo');const l=layers.find(x=>x.el===el);if(l)removeLayer(l);unwake();render()};
+GO.finishWo=async()=>{const all=A.exercises.flatMap(e=>e.sets);const done=all.filter(s=>s.done).length;
+ if(!done){if(await ask('Битта ҳам сет бажарилмади (✓ босилмади).<br>Машғулотни бекор қиласизми?','Бекор қилиш')){A=null;saveA();GO.minWo();unwake();render()}return}
+ const und=all.length-done;if(und&&!await ask(`${und} та бажарилмаган сет сақланмайди.<br>Машғулотни тугатайми?`,'Тугатиш',false))return;
+ const w={id:A.id,name:A.name.trim()||'Машғулот',routineId:A.routineId,start:A.start,end:Date.now(),
+  exercises:A.exercises.map(e=>({exId:e.exId,name:exName(e),note:e.note,sets:e.sets.filter(s=>s.done).map(s=>({kg:num(s.kg),reps:Math.round(num(s.reps)),rpe:s.rpe?+s.rpe:null,type:s.type==='w'?'w':'n'}))})).filter(e=>e.sets.length)};
+ const recs=findRecords(w);S.workouts.push(w);S.workouts.sort((a,b)=>a.start-b.start);
+ const r=S.routines.find(x=>x.id===A.routineId);const restMap={};A.exercises.forEach(e=>restMap[e.exId]=e.rest);
+ const changed=r&&w.exercises.some(e=>{const it=r.items.find(i=>i.exId===e.exId);return !it||e.sets.length>it.sets});
+ save();A=null;saveA();GO.minWo();unwake();tab='home';render();
+ setTimeout(()=>{summary(w,recs);if(changed)setTimeout(async()=>{if(await ask(`Бугун «${esc(r.name)}» дастурига янги машқ ёки сет қўшдингиз.<br>Дастурга ҳам сақлайми?`,'Ҳа, дастурга сақлаш',false,'Йўқ, ўзгартирмаслик')){w.exercises.forEach(e=>{const it=r.items.find(i=>i.exId===e.exId);if(it)it.sets=Math.max(it.sets,e.sets.length);else r.items.push({exId:e.exId,sets:e.sets.length,rest:restMap[e.exId]??exRest(e.exId)})});save();toast('Дастур янгиланди ✓')}},50)},100)};
+function findRecords(w){const out=[];w.exercises.forEach(e=>{const h=S.workouts.flatMap(x=>x.exercises.filter(y=>y.exId===e.exId).flatMap(y=>normal(y.sets)));if(!h.length)return;
+ const ns=normal(e.sets);if(!ns.length)return;
+ const pk=Math.max(...h.map(s=>s.kg)),ck=Math.max(...ns.map(s=>s.kg));
+ const p1=Math.max(...h.map(e1rm)),c1=Math.max(...ns.map(e1rm));
+ const pv=Math.max(...h.map(s=>s.kg*s.reps)),cv=Math.max(...ns.map(s=>s.kg*s.reps));
+ if(ck>pk&&ck>0)out.push(`🏆 ${e.name}: энг оғир вазн ${fmtKg(ck)} кг (олдин ${fmtKg(pk)})`);
+ else if(c1>p1+.01&&c1>0)out.push(`🏆 ${e.name}: кучингиз ошди — тахм. 1ПМ ${fmtKg(Math.round(c1))} кг`);
+ else if(cv>pv&&cv>0)out.push(`🏆 ${e.name}: энг катта сет ҳажми ${fmtNum(cv)} кг`)});return out}
+function summary(w,recs){const n=S.workouts.length;
+ const sh=openSheet(`<div style="text-align:center;font-size:44px">🎉</div><div style="text-align:center;font-size:22px;font-weight:800">Офарин, Нуриддин!</div>
+ <div class="mu" style="text-align:center;margin-bottom:12px">Бу сизнинг ${n}-машғулотингиз</div>
+ <div class="grid3 card"><div><b>${fmtDur(w.end-w.start)}</b><span>Вақт</span></div><div><b>${fmtNum(wVol(w))} кг</b><span>Ҳажм</span></div><div><b>${wSets(w)}</b><span>Сетлар</span></div></div>
+ ${recs.map(r=>`<div class="pr">${esc(r)}</div>`).join('')}<button class="btn primary block" data-c>Ёпиш</button>`);
+ sh.querySelector('[data-c]').onclick=()=>closeSheet(sh)}
+
+/* дам олиш таймери */
+function startRest(sec){A.rest={end:Date.now()+sec*1000,total:sec};saveA();rRest()}
+GO.restAdj=d=>{if(!A||!A.rest)return;A.rest.end+=d*1000;A.rest.total=Math.max(1,A.rest.total+ +d);saveA();if(A.rest.end<=Date.now()){A.rest=null;saveA();rRest()}else updRest()};
+GO.restSkip=()=>{if(A){A.rest=null;saveA()}rRest()};
+GO.restMenu=()=>menu([...(A.rest?[{t:'Таймерни тўхтатиш',cls:'red',f:GO.restSkip}]:[]),...[30,60,90,120,180,300].map(s=>({t:fmtRest(s),icon:IC.timer,f:()=>startRest(s)}))],'Дам олиш таймери');
+function rRest(){const b=$('#restbar');if(!A||!A.rest){b.className='';b.innerHTML='';return}
+ b.className='on'+(A.open?' inwo':'');
+ b.innerHTML=`<div class="rprog"><i id="rpi"></i></div><div class="row"><button class="btn light sm" data-go="restAdj:-15">−15</button><div class="rt"><small>Дам олиш</small><b id="rtime"></b></div><button class="btn light sm" data-go="restAdj:15">+15</button><button class="btn primary sm" data-go="restSkip">Ўтказиш</button></div>`;updRest()}
+function updRest(){if(!A||!A.rest)return;const left=A.rest.end-Date.now();const t=$('#rtime'),p=$('#rpi');if(t)t.textContent=clock(left+999);if(p)p.style.width=Math.max(0,Math.min(100,left/10/A.rest.total))+'%'}
+function rMini(){const m=$('#mini');if(!A||A.open){m.className='';m.innerHTML='';return}
+ const cur=A.exercises.find(e=>e.sets.some(s=>!s.done))||A.exercises[A.exercises.length-1];
+ m.className='on';m.innerHTML=`<div class="minibar" data-go="openWo"><span class="ib">${IC.up}</span><span class="dotg"></span><div><b>${esc(A.name)} · <span class="woclock"></span></b><small>${cur?esc(exName(cur)):'Машқ қўшилмаган'}</small></div><button class="ib trash" data-go="discardWo">${IC.trash}</button></div>`;tick()}
+function tick(){if(!A)return;const t=clock(Date.now()-A.start);document.querySelectorAll('.woclock').forEach(e=>e.textContent=t);
+ if(A.rest){if(A.rest.end<=Date.now()){A.rest=null;saveA();rRest();alarm()}else updRest()}}
+setInterval(tick,500);
+
+/* овоз, титраш, экран ўчмаслиги */
+let actx;function unlockAudio(){try{if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume()}catch(e){}}
+document.addEventListener('touchstart',unlockAudio,{passive:true});document.addEventListener('click',unlockAudio);
+function vib(p){if(S.settings.vib&&navigator.vibrate)try{navigator.vibrate(p)}catch(e){}}
+function alarm(){vib([300,120,300,120,300]);toast('⏰ Дам олиш тугади — кейинги сет!');if(!S.settings.sound||!actx)return;
+ [0,.3,.6].forEach(t=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=880;o.connect(g);g.connect(actx.destination);const s=actx.currentTime+t;
+ g.gain.setValueAtTime(.0001,s);g.gain.exponentialRampToValueAtTime(.5,s+.02);g.gain.exponentialRampToValueAtTime(.0001,s+.22);o.start(s);o.stop(s+.25)})}
+let wl=null;async function wake(){if(!S.settings.wake||!('wakeLock' in navigator)||wl)return;try{wl=await navigator.wakeLock.request('screen');wl.addEventListener('release',()=>wl=null)}catch(e){}}
+function unwake(){if(wl){wl.release().catch(()=>{});wl=null}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){if(A)wake();tick()}});
+
+/* ====== МАШҒУЛОТ ТАФСИЛОТИ ====== */
+GO.wDetail=id=>{const w=S.workouts.find(x=>x.id===id);if(!w)return;
+ openPage(()=>esc(w.name),()=>`<div class="mu">${fmtDate(w.start)}</div>
+ <div class="kv" style="margin-bottom:14px"><div><span>Вақт</span><b>${fmtDur(w.end-w.start)}</b></div><div><span>Ҳажм</span><b>${fmtNum(wVol(w))} кг</b></div><div><span>Сетлар</span><b>${wSets(w)}</b></div><div><span>Такрор</span><b>${wReps(w)}</b></div></div>
+ ${w.exercises.map(e=>{let n=0;return `<div class="card"><div class="row" data-go="exDetail:${e.exId}">${thumb(e.exId,40)}<b class="acc">${esc(exName(e))}</b></div>
+  ${e.note?`<div class="mu sm" style="margin-top:6px">📝 ${esc(e.note)}</div>`:''}
+  <div class="hist" style="margin-top:8px">${e.sets.map(s=>`<div class="hrow"><span class="${s.type==='w'?'r2':'mu'}">${s.type==='w'?'И':'Сет '+(++n)}</span><b>${fmtKg(s.kg)} кг × ${s.reps}</b><span class="${rpeCls(s.rpe)}">${s.rpe?'Баҳо '+s.rpe:''}</span></div>`).join('')}</div></div>`}).join('')}
+ <button class="btn primary block" data-go="repeatW:${w.id}">${IC.play} Шу машғулотни такрорлаш</button>
+ <button class="btn light block" data-go="saveAsRoutine:${w.id}">${IC.list} Дастур сифатида сақлаш</button>
+ <button class="btn danger-t block" data-go="delW:${w.id}">Машғулотни ўчириш</button>`)};
+GO.repeatW=id=>{const w=S.workouts.find(x=>x.id===id);closeTop();startWorkout({id:null,name:w.name,items:w.exercises.map(e=>({exId:e.exId,sets:e.sets.length,rest:exRest(e.exId)}))})};
+GO.saveAsRoutine=id=>{const w=S.workouts.find(x=>x.id===id);S.routines.push({id:uid(),name:w.name,items:w.exercises.filter(e=>getEx(e.exId)).map(e=>({exId:e.exId,sets:e.sets.length,rest:exRest(e.exId)}))});save();toast('Дастур сақланди ✓');render()};
+GO.delW=async id=>{if(!await ask('Бу машғулот тарихдан ўчирилсинми?','Ўчириш'))return;S.workouts=S.workouts.filter(x=>x.id!==id);save();closeTop();refreshAll()};
+
+/* ====== МАШҚ ТАҲЛИЛИ ====== */
+function exHistory(exId){return S.workouts.map(w=>{const sets=w.exercises.filter(e=>e.exId===exId).flatMap(e=>e.sets);if(!sets.length)return null;const ns=normal(sets);
+ return {w,sets,max:Math.max(0,...ns.map(s=>s.kg)),orm:Math.max(0,...ns.map(e1rm)),vol:ns.reduce((a,s)=>a+s.kg*s.reps,0),reps:Math.max(0,...ns.map(s=>s.reps))}}).filter(Boolean)}
+GO.exDetail=id=>{let metric='max';const p=openPage(()=>esc((getEx(id)||{}).name||'Машқ'),()=>{const e=getEx(id);if(!e)return '<div class="empty">Машқ топилмади</div>';const h=exHistory(id);const all=h.flatMap(x=>normal(x.sets));
+ return `${e.img?`<img class="bigimg" src="${e.img}">`:''}<div class="mu" style="margin-bottom:12px">${esc(e.muscle)} · ${esc(e.equip)}${e.en?' · '+esc(e.en):''}</div>
+ <div class="stat4"><div><span>Энг оғир вазн</span><b>${fmtKg(Math.max(0,...all.map(s=>s.kg)))} кг</b></div><div><span>Тахминий 1ПМ*</span><b>${fmtKg(Math.round(Math.max(0,...all.map(e1rm))))} кг</b></div>
+ <div><span>Энг кўп такрор</span><b>${Math.max(0,...all.map(s=>s.reps))}</b></div><div><span>Бажарилган</span><b>${h.length} марта</b></div></div>
+ ${h.length>1?`<div class="card"><div class="seg">${[['max','Энг оғир'],['orm','1ПМ'],['vol','Ҳажм'],['reps','Такрор']].map(([k,t])=>`<button class="${metric===k?'on':''}" data-mt="${k}">${t}</button>`).join('')}</div><canvas class="ch" id="exc"></canvas></div>`:''}
+ <div class="mu sm" style="margin:-4px 4px 12px">* 1ПМ — бир марта кўтара оладиган тахминий максимал вазн</div>
+ <div class="sec">Тарих</div>${h.slice().reverse().map(x=>{let n=0;return `<div class="card hist"><div class="row between" style="margin-bottom:6px"><b>${fmtDate(x.w.start,false)}</b><span class="mu sm">${esc(x.w.name)}</span></div>
+ ${x.sets.map(s=>`<div class="hrow"><span class="${s.type==='w'?'r2':'mu'}">${s.type==='w'?'И':(++n)}</span><b>${fmtKg(s.kg)} кг × ${s.reps}</b><span class="${rpeCls(s.rpe)}">${s.rpe?'@'+s.rpe:''}</span></div>`).join('')}</div>`}).join('')||'<div class="empty">Бу машқ ҳали бажарилмаган</div>'}`},
+ {right:()=>`<button class="ib" data-go="exEdit:${id}">${IC.edit}</button>`,
+ refresh:pg=>{pg.querySelectorAll('[data-mt]').forEach(b=>b.onclick=()=>{metric=b.dataset.mt;pg._refresh()});const c=pg.querySelector('#exc');
+  if(c){const h=exHistory(id).slice(-20);chart(c,h.map(x=>shortDate(x.w.start)),h.map(x=>metric==='orm'?Math.round(x.orm):x[metric]),'line')}}});p._exId=id};
+
+/* ====== ГРАФИК ====== */
+function chart(cv,labels,vals,type='bar',fmt=v=>fmtNum(v)){if(!cv.clientWidth){if(!cv._try||cv._try<20){cv._try=(cv._try||0)+1;requestAnimationFrame(()=>chart(cv,labels,vals,type,fmt))}return}const dpr=devicePixelRatio||1,W=cv.clientWidth,H=cv.clientHeight;cv.width=W*dpr;cv.height=H*dpr;
+ const x=cv.getContext('2d');x.scale(dpr,dpr);const cs=getComputedStyle(document.documentElement);const ac=cs.getPropertyValue('--ac').trim(),mu=cs.getPropertyValue('--mu').trim(),ln=cs.getPropertyValue('--ln').trim();
+ const L=8,R=8,T=22,B=24,cw=W-L-R,chh=H-T-B,mx=Math.max(1,...vals);x.font='11px sans-serif';x.textAlign='center';
+ x.strokeStyle=ln;x.lineWidth=1;[0,.5,1].forEach(f=>{const y=T+chh*(1-f);x.beginPath();x.moveTo(L,y);x.lineTo(W-R,y);x.stroke()});
+ const n=vals.length,step=cw/n,every=Math.ceil(n/7);
+ if(type==='bar'){vals.forEach((v,i)=>{const h=chh*v/mx,bx=L+i*step+step*.18,bw=step*.64;x.fillStyle=i===n-1?ac:ac+'99';
+  const r=Math.min(5,bw/2);const y=T+chh-h;x.beginPath();if(h>0){x.moveTo(bx,T+chh);x.lineTo(bx,y+r);x.quadraticCurveTo(bx,y,bx+r,y);x.lineTo(bx+bw-r,y);x.quadraticCurveTo(bx+bw,y,bx+bw,y+r);x.lineTo(bx+bw,T+chh);x.fill()}})}
+ else{x.strokeStyle=ac;x.lineWidth=2.5;x.beginPath();vals.forEach((v,i)=>{const px=L+i*step+step/2,py=T+chh*(1-v/mx);i?x.lineTo(px,py):x.moveTo(px,py)});x.stroke();
+  vals.forEach((v,i)=>{x.fillStyle=ac;x.beginPath();x.arc(L+i*step+step/2,T+chh*(1-v/mx),3.5,0,7);x.fill()})}
+ x.fillStyle=mu;labels.forEach((l,i)=>{if((n-1-i)%every===0)x.fillText(l,L+i*step+step/2,H-6)});
+ const iM=vals.lastIndexOf(Math.max(...vals));if(vals[iM]>0){x.fillStyle=cs.getPropertyValue('--tx').trim();x.font='bold 11px sans-serif';x.fillText(fmt(vals[iM]),Math.min(W-30,Math.max(30,L+iM*step+step/2)),T+chh*(1-vals[iM]/mx)-7)}}
+
+/* ====== ТАҲЛИЛ БЎЛИМИ ====== */
+let sMetric='dur',calOff=0;
+function rStats(m){const weeks=[];for(let i=11;i>=0;i--){const [a,b]=weekRange(i);const ws=inRange(a,b);
+ weeks.push({l:shortDate(a),dur:ws.reduce((x,w)=>x+(w.end-w.start),0)/60000,vol:ws.reduce((x,w)=>x+wVol(w),0),reps:ws.reduce((x,w)=>x+wReps(w),0),cnt:ws.length})}
+ const tot=S.workouts.length,totDur=S.workouts.reduce((x,w)=>x+w.end-w.start,0),totVol=S.workouts.reduce((x,w)=>x+wVol(w),0);
+ const since=Date.now()-30*864e5,mc={};S.workouts.filter(w=>w.start>=since).forEach(w=>w.exercises.forEach(e=>{const g=(getEx(e.exId)||{}).muscle||'Бошқа';mc[g]=(mc[g]||0)+normal(e.sets).length}));
+ const ms=Object.entries(mc).sort((a,b)=>b[1]-a[1]),mmax=ms.length?ms[0][1]:1;
+ const d=new Date();d.setDate(1);d.setMonth(d.getMonth()+calOff);const y=d.getFullYear(),mo=d.getMonth();const days=new Date(y,mo+1,0).getDate(),first=(new Date(y,mo,1).getDay()+6)%7;
+ const wd=new Set(S.workouts.map(w=>dayKey(w.start)));const today=dayKey(Date.now());const mCount=S.workouts.filter(w=>{const t=new Date(w.start);return t.getFullYear()===y&&t.getMonth()===mo}).length;
+ m.innerHTML=`<header class="top"><h1>Таҳлил</h1></header><div class="wrap">
+ <div class="stat4"><div><span>Жами машғулот</span><b>${tot}</b></div><div><span>Жами вақт</span><b>${fmtDur(totDur)}</b></div><div><span>Жами ҳажм</span><b>${fmtNum(totVol/1000)} т</b></div><div><span>Кетма-кет ҳафта</span><b>🔥 ${streak()}</b></div></div>
+ <div class="card"><div class="seg">${[['dur','Давомийлик'],['vol','Ҳажм'],['reps','Такрор'],['cnt','Машғулот сони']].map(([k,t])=>`<button class="${sMetric===k?'on':''}" data-go="sMet:${k}">${t}</button>`).join('')}</div>
+ <div class="mu sm">Охирги 12 ҳафта (${sMetric==='dur'?'дақиқа':sMetric==='vol'?'кг':sMetric==='reps'?'марта':'та'})</div><canvas class="ch" id="stc"></canvas></div>
+ <div class="card"><div class="row between" style="margin-bottom:8px"><button class="ib" data-go="cal:-1">‹</button><b>${MON[mo][0].toUpperCase()+MON[mo].slice(1)} ${y} · ${mCount} та</b><button class="ib" data-go="cal:1">›</button></div>
+ <div class="cal">${WDS.map(x=>`<div class="h">${x}</div>`).join('')}${'<div></div>'.repeat(first)}${Array.from({length:days},(_,i)=>{const k=`${y}-${pad(mo+1)}-${pad(i+1)}`;return `<div class="d ${wd.has(k)?'w':''} ${k===today?'t':''}" ${wd.has(k)?`data-go="dayW:${k}"`:''}>${i+1}</div>`}).join('')}</div></div>
+ <div class="card"><b>Мушаклар бўйича (30 кун, сетлар)</b>${ms.length?ms.map(([k,v])=>`<div class="mbar"><div class="row between"><span>${k}</span><b>${v}</b></div><div class="bar"><i style="width:${v/mmax*100}%;background:${MCOL[k]||'var(--ac)'}"></i></div></div>`).join(''):'<div class="empty">Маълумот йўқ</div>'}</div>
+ <button class="tile" style="width:100%" data-go="library">${IC.dumb} Машқлар бўйича таҳлил ва рекордлар</button></div>`;
+ const c=$('#stc');chart(c,weeks.map(w=>w.l),weeks.map(w=>Math.round(w[sMetric])),'bar')}
+GO.sMet=k=>{sMetric=k;render()};GO.cal=d=>{calOff+=+d;render()};
+GO.dayW=k=>{const ws=S.workouts.filter(w=>dayKey(w.start)===k);if(ws.length===1)GO.wDetail(ws[0].id);else menu(ws.map(w=>({t:esc(w.name)+' · '+fmtDur(w.end-w.start),f:()=>GO.wDetail(w.id)})))};
+
+/* ====== ПРОФИЛ ====== */
+function rProfile(m){const s=S.settings;const lm=S.measures[S.measures.length-1];
+ m.innerHTML=`<header class="top"><h1>Профил</h1></header><div class="wrap">
+ <div class="grid2" style="margin-bottom:12px"><button class="tile" data-go="library">${IC.dumb} Машқлар</button><button class="tile" data-go="measures">${IC.body} Ўлчамлар</button>
+ <button class="tile" data-go="tab:stats">${IC.chart} Таҳлил</button><button class="tile" data-go="history">${IC.cal} Тарих</button></div>
+ ${lm?`<div class="card row between"><span class="mu">Охирги вазн</span><b>${fmtKg(lm.weight)} кг <small class="mu">${shortDate(lm.date)}</small></b></div>`:''}
+ <div class="sec">Созламалар</div><div class="card">
+ <div class="tog"><span>Дам олиш вақти (умумий)</span><select data-set="rest">${[30,45,60,90,120,150,180,240,300].map(x=>`<option value="${x}" ${s.rest===x?'selected':''}>${fmtRest(x)}</option>`).join('')}</select></div>
+ <div class="tog"><span>Ҳафталик мақсад</span><select data-set="goal">${[1,2,3,4,5,6,7].map(x=>`<option value="${x}" ${s.goal===x?'selected':''}>${x} та машғулот</option>`).join('')}</select></div>
+ <div class="tog"><span>Таймер овози</span><button class="sw ${s.sound?'on':''}" data-go="tg:sound"></button></div>
+ <div class="tog"><span>Титраш</span><button class="sw ${s.vib?'on':''}" data-go="tg:vib"></button></div>
+ <div class="tog"><span>Машғулотда экран ўчмасин</span><button class="sw ${s.wake?'on':''}" data-go="tg:wake"></button></div></div>
+ <div class="sec">Захира нусха</div><div class="card">
+ <button class="mitem" data-go="exportD">${IC.save} Захира нусха олиш (файлга)</button>
+ <button class="mitem" data-go="importD">${IC.load} Захирадан тиклаш</button></div>
+ <div class="mu sm" style="padding:0 6px">Барча маълумотлар фақат шу телефонда сақланади. Телефон алмаштиришдан ёки браузер тозалашдан олдин албатта захира олинг.${S.lastBackup?`<br>Охирги захира: ${fmtDate(S.lastBackup)}`:''}</div>
+ <div class="mu sm" style="text-align:center;margin-top:24px">Фитнес · 1.0</div></div>`;
+ m.querySelectorAll('[data-set]').forEach(x=>x.onchange=()=>{S.settings[x.dataset.set]=+x.value;save();render()})}
+GO.tg=k=>{S.settings[k]=!S.settings[k];save();render()};
+GO.history=()=>openPage(()=>'Барча машғулотлар',()=>S.workouts.slice().reverse().map(wCard).join('')||'<div class="empty">Тарих бўш</div>');
+GO.exportD=()=>{S.lastBackup=Date.now();save();const b=new Blob([JSON.stringify(S)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);
+ a.download=`fitnes-zaxira-${dayKey(Date.now())}.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),3000);toast('Захира файли юкланди ✓');render()};
+GO.importD=()=>{const i=document.createElement('input');i.type='file';i.accept='.json,application/json';i.onchange=()=>{const f=i.files[0];if(!f)return;const r=new FileReader();
+ r.onload=async()=>{try{const d=JSON.parse(r.result);if(!d.exercises||!d.workouts)throw 0;
+  if(!await ask(`Захирада ${d.workouts.length} та машғулот бор.<br>Ҳозирги маълумотлар алмаштирилсинми?`,'Тиклаш'))return;S=d;save();load();refreshAll();toast('Тикланди ✓')}catch(e){toast('Нотўғри файл')}};r.readAsText(f)};i.click()};
+
+GO.measures=()=>openPage(()=>'Тана ўлчамлари',()=>{const ms=S.measures;return `<button class="btn primary block" data-go="addM">${IC.plus} Ўлчам қўшиш</button>
+ ${ms.length>1?`<div class="card"><b>Вазн динамикаси</b><canvas class="ch" id="mc"></canvas></div>`:''}
+ ${ms.slice().reverse().map((x,i)=>`<div class="card row between"><div><b>${fmtDate(x.date,false)}</b><div class="mu sm">${x.waist?'Бел: '+fmtKg(x.waist)+' см':''}${x.note?' · '+esc(x.note):''}</div></div><div class="row"><b>${x.weight?fmtKg(x.weight)+' кг':''}</b><button class="ib trash" data-go="delM:${ms.length-1-i}">${IC.trash}</button></div></div>`).join('')||'<div class="empty">Ўлчамлар йўқ</div>'}`},
+ {refresh:pg=>{const c=pg.querySelector('#mc');if(c){const w=S.measures.filter(x=>x.weight).slice(-20);chart(c,w.map(x=>shortDate(x.date)),w.map(x=>x.weight),'line',fmtKg)}}});
+GO.addM=()=>{const sh=openSheet(`<div class="shead"><b>Янги ўлчам</b></div>
+ <div class="fld"><label>Сана</label><input class="inp" type="date" data-d value="${dayKey(Date.now())}"></div>
+ <div class="fld"><label>Тана вазни (кг)</label><input class="inp" inputmode="decimal" data-w placeholder="масалан 82.5"></div>
+ <div class="fld"><label>Бел айланаси (см)</label><input class="inp" inputmode="decimal" data-b placeholder="ихтиёрий"></div>
+ <div class="fld"><label>Изоҳ</label><input class="inp" data-n placeholder="ихтиёрий"></div><button class="btn primary block" data-s>Сақлаш</button>`);
+ sh.querySelector('[data-s]').onclick=()=>{const w=num(sh.querySelector('[data-w]').value),b=num(sh.querySelector('[data-b]').value);if(!w&&!b){toast('Вазн ёки бел ўлчамини киритинг');return}
+  const dv=sh.querySelector('[data-d]').value;const dt=dv?new Date(dv+'T12:00').getTime():Date.now();
+  S.measures.push({date:dt,weight:w||null,waist:b||null,note:sh.querySelector('[data-n]').value.trim()});S.measures.sort((a,b)=>a.date-b.date);save();closeSheet(sh);refreshAll()}};
+GO.delM=async i=>{if(await ask('Ўлчам ўчирилсинми?','Ўчириш')){S.measures.splice(+i,1);save();refreshAll()}};
+
+/* ====== PWA ====== */
+(function(){
+ if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})})();
+
+/* ====== ИШГА ТУШИРИШ ====== */
+load();render();if(A&&A.open)openWo();
+</script>
+</body>
+</html>
