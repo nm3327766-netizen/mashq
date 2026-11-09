@@ -20,7 +20,7 @@ body{min-height:100vh}
 button,input,select{font:inherit;color:inherit;background:none;border:0}
 button{cursor:pointer}
 header{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--ln);padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 12px;font-size:22px;font-weight:800}
-main{padding:14px 14px 110px}
+main{padding:14px 14px 190px}
 .card{background:var(--card);border:1px solid var(--ln);border-radius:16px;padding:14px;margin-bottom:12px}
 .btn{display:block;width:100%;padding:13px;border-radius:12px;font-weight:600;background:var(--in);text-align:center;margin-bottom:10px}
 .btn.p{background:var(--ac);color:#fff}
@@ -73,6 +73,16 @@ main{padding:14px 14px 110px}
 .tg.on{background:var(--ac);color:#fff}
 .tc.today{border:2px solid var(--ac)}
 .n.s{width:52px;flex:none}
+#rest{position:fixed;left:10px;right:10px;bottom:calc(72px + env(safe-area-inset-bottom,0px));z-index:15;background:#111827;color:#fff;border-radius:16px;padding:10px 12px;display:none;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+#rest.on{display:block}
+#rest .bar{height:4px;background:rgba(255,255,255,.2);border-radius:2px;margin-top:8px;overflow:hidden}
+#rest .bar i{display:block;height:100%;background:var(--ac);transition:width .3s linear}
+#rest button{background:rgba(255,255,255,.15);color:#fff;border-radius:10px;padding:8px 10px;font-weight:700;font-size:14px}
+#rest.end{background:var(--ok)}
+.rbtn{font-size:13px;font-weight:700;color:var(--ac);background:var(--in);border-radius:8px;padding:5px 8px;margin-right:6px}
+.rp{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.rp button{padding:14px 4px;border-radius:12px;background:var(--in);font-weight:700}
+.rp button.on{background:var(--ac);color:#fff}
 .empty{text-align:center;color:var(--mu);padding:30px 10px}
 #toast{position:fixed;left:50%;top:20px;transform:translate(-50%,-120px);background:#111827;color:#fff;padding:12px 18px;border-radius:12px;z-index:99;transition:transform .25s;font-size:15px;white-space:nowrap;max-width:90%}
 #toast.on{transform:translate(-50%,0)}
@@ -87,6 +97,8 @@ main{padding:14px 14px 110px}
  <button data-tab="hist">Тарих</button>
  <button data-tab="ex">Машқлар</button>
 </nav>
+<div id="rest"><div class="row"><span style="font-size:13px;opacity:.8" id="rl">Дам олиш</span><span class="sp"></span><b id="rt" style="font-size:26px;font-variant-numeric:tabular-nums">0:00</b></div>
+<div class="row" style="margin-top:8px;gap:6px"><button data-rt="-15">−15</button><button data-rt="15">+15</button><span class="sp"></span><button data-rt="x">Ўтказиш ⏭</button></div><div class="bar"><i id="rb"></i></div></div>
 <div id="toast"></div>
 <script>
 'use strict';
@@ -170,7 +182,7 @@ function rToday(){
 function exBlock(ex,ei){
  const t=ex.type==='t',r=ex.type==='r',prev=lastEx(ex.exId),hp=t&&progsOf(ex.exId);
  return `<div class="card">
- <div class="row" style="margin-bottom:2px"><b class="sp" style="font-size:17px">${esc(ex.name)}</b><button class="btn sm d" data-a="rm:${ei}">✕</button></div>
+ <div class="row" style="margin-bottom:2px"><b class="sp" style="font-size:17px">${esc(ex.name)}</b><button class="rbtn" data-a="rset:${ei}">⏱ ${restOf(ex.exId)?clock(restOf(ex.exId)*1000):'йўқ'}</button><button class="btn sm d" data-a="rm:${ei}">✕</button></div>
  <div class="mu sm" style="margin-bottom:${prev&&prev.rate?4:10}px">${prev?`Охирги марта: ${shortD(lastWo(ex.exId).start)}`:'Биринчи марта бажариляпти'}</div>
  ${prev?advice(prev.rate):''}
  <div class="sets h"><span>№</span><span>ОЛДИНГИ</span><span>${t?'ДАҚИҚА':r?'ТАКРОР':'КГ'}</span><span>${t?(hp?'ДАСТУР':''):r?'':'ТАКРОР'}</span><span>✓</span></div>
@@ -233,13 +245,15 @@ function tplEdit(id){
    <span class="sp"><b>${esc(e.name)}</b></span>
    ${e.type==='t'?'':`<input class="n s" inputmode="numeric" value="${i.n}" data-n="${k}"><span class="mu sm">сет</span>`}
    <button class="btn sm" data-u="${k}" ${k?'':'disabled style="opacity:.3"'}>↑</button>
+   <button class="btn sm" data-w="${k}" ${k<T.items.length-1?'':'disabled style="opacity:.3"'}>↓</button>
    <button class="btn sm d" data-r="${k}">✕</button></div>`}).join('')||'<div class="mu sm" style="padding:8px 0">Ҳали машқ йўқ</div>';
  };
  draw();
  sh.querySelector('#td').onclick=e=>{const b=e.target.closest('[data-d]');if(!b)return;const d=+b.dataset.d;T.days=T.days.includes(d)?T.days.filter(x=>x!==d):[...T.days,d];draw()};
  sh.querySelector('#ti').oninput=e=>{const k=e.target.dataset.n;if(k!=null)T.items[+k].n=Math.max(1,Math.min(20,parseInt(e.target.value)||1))};
- sh.querySelector('#ti').onclick=e=>{const u=e.target.closest('[data-u]'),r=e.target.closest('[data-r]');
+ sh.querySelector('#ti').onclick=e=>{const u=e.target.closest('[data-u]'),w=e.target.closest('[data-w]'),r=e.target.closest('[data-r]');
   if(u){const k=+u.dataset.u;if(k>0){[T.items[k-1],T.items[k]]=[T.items[k],T.items[k-1]];draw()}}
+  else if(w){const k=+w.dataset.w;if(k<T.items.length-1){[T.items[k+1],T.items[k]]=[T.items[k],T.items[k+1]];draw()}}
   else if(r){T.items.splice(+r.dataset.r,1);draw()}};
  sh.querySelector('#ta').onclick=()=>{
   const ps=sheet(`<div style="font-weight:800;font-size:18px;margin-bottom:10px">Машқларни белгиланг</div>
@@ -341,6 +355,46 @@ function editEx(id){
  };
 }
 
+const restOf=id=>{const e=S.ex.find(x=>x.id===id);if(!e)return 90;if(e.rest==null)return e.type==='t'?0:90;return e.rest};
+let AC=null;
+function audioUnlock(){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}catch(e){}}
+function beep(){try{audioUnlock();if(!AC)return;const t0=AC.currentTime;[0,0.35,0.7].forEach((d,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=i===2?1320:880;g.gain.setValueAtTime(0.0001,t0+d);g.gain.exponentialRampToValueAtTime(0.6,t0+d+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t0+d+0.28);o.connect(g);g.connect(AC.destination);o.start(t0+d);o.stop(t0+d+0.3)})}catch(e){}}
+function restStart(sec,name){if(!sec)return;S.timer={end:Date.now()+sec*1000,total:sec,name};save();restTick()}
+function restStop(){S.timer=null;save();const r=$('#rest');r.classList.remove('on','end')}
+function restTick(){
+ const r=$('#rest'),T=S.timer;
+ if(!T||!S.active){if(r.classList.contains('on')&&!r.classList.contains('end'))r.classList.remove('on');return}
+ const left=T.end-Date.now();
+ r.classList.add('on');
+ if(left<=0){
+  if(!T.fired){T.fired=true;save();r.classList.add('end');$('#rl').textContent='Дам олиш тугади — кейинги сет!';$('#rt').textContent='0:00';$('#rb').style.width='0%';beep();if(navigator.vibrate)navigator.vibrate([400,150,400,150,400]);setTimeout(()=>{if(S.timer&&S.timer.fired)restStop()},6000)}
+  return;
+ }
+ r.classList.remove('end');
+ $('#rl').textContent='Дам олиш'+(T.name?' · '+T.name:'');
+ $('#rt').textContent=clock(left+999);
+ $('#rb').style.width=Math.max(0,Math.min(100,left/(T.total*1000)*100))+'%';
+}
+document.getElementById('rest').onclick=e=>{const b=e.target.closest('[data-rt]');if(!b||!S.timer)return;const v=b.dataset.rt;
+ if(v==='x'){restStop();return}
+ S.timer.end+=(+v)*1000;S.timer.total=Math.max(S.timer.total+(+v),1);S.timer.fired=false;if(S.timer.end<=Date.now())S.timer.end=Date.now()+1000;save();restTick()};
+function restPick(ei){
+ const ex=S.active.exercises[ei],cur=restOf(ex.exId);let v=cur;
+ const P=[0,30,45,60,90,120,150,180,240,300];
+ const sh=sheet(`<div style="font-weight:800;font-size:18px;margin-bottom:4px">Сетлар орасида дам олиш</div>
+ <div class="mu sm" style="margin-bottom:12px">${esc(ex.name)}</div>
+ <div class="rp" id="rp"></div>
+ <div class="row" style="justify-content:center;gap:14px;margin-bottom:14px"><button class="btn sm" data-s="-15">−15 с</button><b id="rv" style="font-size:26px;min-width:80px;text-align:center"></b><button class="btn sm" data-s="15">+15 с</button></div>
+ <button class="btn p" id="ok">Сақлаш</button>`);
+ const draw=()=>{sh.querySelector('#rp').innerHTML=P.map(x=>`<button class="${x===v?'on':''}" data-v="${x}">${x?clock(x*1000):'Ўчирилган'}</button>`).join('');sh.querySelector('#rv').textContent=v?clock(v*1000):'Йўқ'};
+ draw();
+ sh.querySelector('.sheet').addEventListener('click',e=>{const a=e.target.closest('[data-v]'),b=e.target.closest('[data-s]');if(a){v=+a.dataset.v;draw()}else if(b){v=Math.max(0,Math.min(900,v+(+b.dataset.s)));draw()}});
+ sh.querySelector('#ok').onclick=()=>{const e=S.ex.find(x=>x.id===ex.exId);if(e)e.rest=v;save();sh.remove();render();toast('Дам олиш: '+(v?clock(v*1000):'ўчирилди'))};
+}
+let WL=null;
+async function wakeOn(){try{if(S.active&&'wakeLock' in navigator&&!WL){WL=await navigator.wakeLock.request('screen');WL.addEventListener('release',()=>{WL=null})}}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){wakeOn();restTick()}});
+
 function rateAsk(ei){
  const ex=S.active.exercises[ei];
  const sh=sheet(`<div style="font-weight:800;font-size:18px;margin-bottom:4px">Қанчалик қийин бўлди?</div>
@@ -366,7 +420,10 @@ function toggle(ei,si){
   if(!num(s.b)&&pv&&pv.b)s.b=String(pv.b);
   if(!num(s.b)){toast('Такрор сонини киритинг');return}
  }
- s.done=true;if(navigator.vibrate)navigator.vibrate(40);save();render();
+ s.done=true;if(navigator.vibrate)navigator.vibrate(40);audioUnlock();wakeOn();
+ const allDone=S.active.exercises.every(e=>e.sets.every(x=>x.done));
+ if(!allDone)restStart(restOf(ex.exId),ex.name);
+ save();render();
  if(!ex.rate&&ex.sets.every(x=>x.done))rateAsk(ei);
 }
 
@@ -393,7 +450,7 @@ function finish(){
   if(now>best)prs.push(`${e.name}: ${fmtK(now)} ${e.type==='t'?'дақ':e.type==='r'?'та':'кг'}`);
  });
  S.wo.push({id:uid(),name:act.name.trim()||'Машғулот',start:act.start,end:Date.now(),exercises:exs});
- S.active=null;save();tab='hist';render();
+ S.active=null;S.timer=null;restStop();save();tab='hist';render();
  if(prs.length){
   const sh=sheet(`<div style="text-align:center;font-size:40px">🏆</div><div style="text-align:center;font-weight:800;font-size:20px;margin-bottom:12px">Янги рекорд!</div>${prs.map(p=>`<div class="pr">${esc(p)}</div>`).join('')}<button class="btn p" data-close>Ёпиш</button>`);
   sh.querySelector('[data-close]').onclick=()=>sh.remove();
@@ -472,7 +529,8 @@ document.addEventListener('click',e=>{
  else if(a==='cp'){const ex=S.active.exercises[ei],q=lastEx(ex.exId)?.sets[si],st=ex.sets[si];if(q&&st&&!st.done){if(q.a!=null)st.a=String(q.a);if(ex.type!=='t'&&q.b!=null)st.b=String(q.b);if(q.p!=null)st.p=q.p;save();render()}}
  else if(a==='rm'){if(confirm('Машқни олиб ташлайсизми?')){S.active.exercises.splice(ei,1);save();render()}}
  else if(a==='finish')finish();
- else if(a==='discard'){if(confirm('Машғулот бекор қилинсинми?')){S.active=null;save();render()}}
+ else if(a==='discard'){if(confirm('Машғулот бекор қилинсинми?')){S.active=null;restStop();save();render()}}
+ else if(a==='rset')restPick(ei);
  else if(a==='delw'){if(confirm('Машғулот ўчирилсинми?')){S.wo=S.wo.filter(w=>w.id!==x);save();render()}}
  else if(a==='newex')newEx();
  else if(a==='rnx')editEx(x);
@@ -487,7 +545,7 @@ document.addEventListener('input',e=>{
  if(t.dataset.f){const s=S.active.exercises[+t.dataset.e].sets[+t.dataset.s];s[t.dataset.f]=t.value.replace(',','.');save()}
 });
 
-setInterval(()=>{const c=$('#clk');if(c&&S.active)c.textContent=clock(Date.now()-S.active.start)},1000);
+setInterval(()=>{const c=$('#clk');if(c&&S.active)c.textContent=clock(Date.now()-S.active.start);restTick()},500);
 
 if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 render();
