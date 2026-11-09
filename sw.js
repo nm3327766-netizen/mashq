@@ -1,10 +1,20 @@
-// Фитнес — интернетсиз ишлаш учун (ихтиёрий файл)
-const C = 'fitnes-v2';
+// Машқ — интернетсиз ишлаш учун
+const C = 'mashq-v1';
+const FILES = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
+
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(C).then(c => c.addAll(['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'])));
+  e.waitUntil(caches.open(C).then(c => c.addAll(FILES)));
   self.skipWaiting();
 });
-self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(k => k !== C).map(k => caches.delete(k))))
+      .then(() => self.clients.claim())
+  );
+});
+
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   e.respondWith(
