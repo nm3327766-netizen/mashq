@@ -83,6 +83,12 @@ main{padding:14px 14px 190px}
 .rp{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
 .rp button{padding:14px 4px;border-radius:12px;background:var(--in);font-weight:700}
 .rp button.on{background:var(--ac);color:#fff}
+.th{flex:none;border-radius:10px;background:var(--in);object-fit:cover;display:flex;align-items:center;justify-content:center;color:var(--mu);font-weight:800;overflow:hidden}
+.th img{width:100%;height:100%;object-fit:cover;display:block}
+.imgv{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.imgv img{max-width:100%;max-height:75vh;border-radius:14px}
+.ipv{width:100%;aspect-ratio:4/3;border-radius:14px;background:var(--in);display:flex;align-items:center;justify-content:center;color:var(--mu);margin-bottom:10px;overflow:hidden}
+.ipv img{width:100%;height:100%;object-fit:contain}
 .empty{text-align:center;color:var(--mu);padding:30px 10px}
 #toast{position:fixed;left:50%;top:20px;transform:translate(-50%,-120px);background:#111827;color:#fff;padding:12px 18px;border-radius:12px;z-index:99;transition:transform .25s;font-size:15px;white-space:nowrap;max-width:90%}
 #toast.on{transform:translate(-50%,0)}
@@ -139,7 +145,7 @@ function load(){
  d.ex.forEach(e=>{if(e.type==='t'&&e.name==='Югуриш'&&!Array.isArray(e.progs))e.progs=defProgs()});
  return d;
 }
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('⚠️ Хотира тўлди')}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('⚠️ Хотира тўлди — баъзи расмларни ўчиринг')}}
 let S=load();
 let tab='today';
 
@@ -182,7 +188,7 @@ function rToday(){
 function exBlock(ex,ei){
  const t=ex.type==='t',r=ex.type==='r',prev=lastEx(ex.exId),hp=t&&progsOf(ex.exId);
  return `<div class="card">
- <div class="row" style="margin-bottom:2px"><b class="sp" style="font-size:17px">${esc(ex.name)}</b><button class="rbtn" data-a="rset:${ei}">⏱ ${restOf(ex.exId)?clock(restOf(ex.exId)*1000):'йўқ'}</button><button class="btn sm d" data-a="rm:${ei}">✕</button></div>
+ <div class="row" style="margin-bottom:2px">${thumb(ex.exId,ex.name,52,'img:'+ex.exId)}<b class="sp" style="font-size:17px">${esc(ex.name)}</b><button class="rbtn" data-a="rset:${ei}">⏱ ${restOf(ex.exId)?clock(restOf(ex.exId)*1000):'йўқ'}</button><button class="btn sm d" data-a="rm:${ei}">✕</button></div>
  <div class="mu sm" style="margin-bottom:${prev&&prev.rate?4:10}px">${prev?`Охирги марта: ${shortD(lastWo(ex.exId).start)}`:'Биринчи марта бажариляпти'}</div>
  ${prev?advice(prev.rate):''}
  <div class="sets h"><span>№</span><span>ОЛДИНГИ</span><span>${t?'ДАҚИҚА':r?'ТАКРОР':'КГ'}</span><span>${t?(hp?'ДАСТУР':''):r?'':'ТАКРОР'}</span><span>✓</span></div>
@@ -242,7 +248,7 @@ function tplEdit(id){
  const draw=()=>{
   sh.querySelector('#td').innerHTML=DORD.map(d=>`<button class="${T.days.includes(d)?'on':''}" data-d="${d}">${DSH[d]}</button>`).join('');
   sh.querySelector('#ti').innerHTML=T.items.map((i,k)=>{const e=S.ex.find(x=>x.id===i.exId);if(!e)return '';return `<div class="row" style="padding:6px 0;border-bottom:1px solid var(--ln)">
-   <span class="sp"><b>${esc(e.name)}</b></span>
+   ${thumb(e.id,e.name,36)}<span class="sp"><b>${esc(e.name)}</b></span>
    ${e.type==='t'?'':`<input class="n s" inputmode="numeric" value="${i.n}" data-n="${k}"><span class="mu sm">сет</span>`}
    <button class="btn sm" data-u="${k}" ${k?'':'disabled style="opacity:.3"'}>↑</button>
    <button class="btn sm" data-w="${k}" ${k<T.items.length-1?'':'disabled style="opacity:.3"'}>↓</button>
@@ -258,7 +264,7 @@ function tplEdit(id){
  sh.querySelector('#ta').onclick=()=>{
   const ps=sheet(`<div style="font-weight:800;font-size:18px;margin-bottom:10px">Машқларни белгиланг</div>
   <div id="pl"></div><button class="btn p" id="dn" style="margin-top:10px">Тайёр</button>`);
-  const pd=()=>{ps.querySelector('#pl').innerHTML=S.ex.map(e=>{const on=T.items.some(i=>i.exId===e.id);return `<button class="li" data-id="${e.id}"><span class="sp"><b>${esc(e.name)}</b><br><small class="mu">${exLabel(e.type)}</small></span><span style="font-size:22px;color:${on?'var(--ok)':'var(--mu)'}">${on?'✓':'+'}</span></button>`}).join('')};
+  const pd=()=>{ps.querySelector('#pl').innerHTML=S.ex.map(e=>{const on=T.items.some(i=>i.exId===e.id);return `<button class="li" data-id="${e.id}">${thumb(e.id,e.name,44)}<span class="sp"><b>${esc(e.name)}</b><br><small class="mu">${exLabel(e.type)}</small></span><span style="font-size:22px;color:${on?'var(--ok)':'var(--mu)'}">${on?'✓':'+'}</span></button>`}).join('')};
   pd();
   ps.querySelector('#pl').onclick=e=>{const b=e.target.closest('[data-id]');if(!b)return;const id=b.dataset.id,k=T.items.findIndex(i=>i.exId===id);
    if(k>=0)T.items.splice(k,1);else{const ex=S.ex.find(x=>x.id===id),l=lastEx(id);T.items.push({exId:id,n:ex.type==='t'?1:(l?Math.max(1,l.sets.length):3)})}pd()};
@@ -284,7 +290,7 @@ function pickEx(){
  <div id="pl"></div>
  <button class="btn" id="nx" style="margin-top:10px">+ Янги машқ яратиш</button>`);
  const draw=()=>{const q=sh.querySelector('#q').value.trim().toLowerCase();
-  sh.querySelector('#pl').innerHTML=S.ex.filter(e=>!q||e.name.toLowerCase().includes(q)).map(e=>`<button class="li" data-id="${e.id}"><span class="sp"><b>${esc(e.name)}</b><br><small class="mu">${exLabel(e.type)}</small></span><span class="mu" style="font-size:22px">+</span></button>`).join('')||'<div class="empty">Топилмади</div>'};
+  sh.querySelector('#pl').innerHTML=S.ex.filter(e=>!q||e.name.toLowerCase().includes(q)).map(e=>`<button class="li" data-id="${e.id}">${thumb(e.id,e.name,44)}<span class="sp"><b>${esc(e.name)}</b><br><small class="mu">${exLabel(e.type)}</small></span><span class="mu" style="font-size:22px">+</span></button>`).join('')||'<div class="empty">Топилмади</div>'};
  draw();
  sh.querySelector('#q').oninput=draw;
  sh.querySelector('#pl').onclick=e=>{const b=e.target.closest('[data-id]');if(!b)return;sh.remove();addEx(b.dataset.id)};
@@ -302,12 +308,14 @@ function addEx(id){
 function newEx(){
  const sh=sheet(`<div style="font-weight:800;font-size:18px;margin-bottom:12px">Янги машқ</div>
  <input class="in" id="en" placeholder="Машқ номи" style="margin-bottom:10px">
- <select class="in" id="et" style="margin-bottom:14px">${TYPE_OPTS('w')}</select>
+ <select class="in" id="et" style="margin-bottom:12px">${TYPE_OPTS('w')}</select>
+ ${IMG_UI}
  <button class="btn p" id="ok">Сақлаш</button>`);
+ let img='';imgField(sh,()=>img,v=>img=v);
  sh.querySelector('#ok').onclick=()=>{
   const name=sh.querySelector('#en').value.trim();
   if(!name){toast('Машқ номини киритинг');return}
-  const ex={id:uid(),name,type:sh.querySelector('#et').value};if(ex.type==='t'&&name==='Югуриш')ex.progs=defProgs();
+  const ex={id:uid(),name,type:sh.querySelector('#et').value};if(img)ex.img=img;if(ex.type==='t'&&name==='Югуриш')ex.progs=defProgs();
   S.ex.push(ex);save();sh.remove();
   if(S.active)addEx(ex.id);else render();
  };
@@ -345,16 +353,43 @@ function editEx(id){
  const ex=S.ex.find(v=>v.id===id);if(!ex)return;
  const sh=sheet(`<div style="font-weight:800;font-size:18px;margin-bottom:12px">Машқни таҳрирлаш</div>
  <input class="in" id="en" value="${esc(ex.name)}" style="margin-bottom:10px">
- <select class="in" id="et" style="margin-bottom:14px">${TYPE_OPTS(ex.type)}</select>
+ <select class="in" id="et" style="margin-bottom:12px">${TYPE_OPTS(ex.type)}</select>
+ ${IMG_UI}
  <button class="btn p" id="ok">Сақлаш</button>`);
+ let img=ex.img||'';imgField(sh,()=>img,v=>img=v);
  sh.querySelector('#ok').onclick=()=>{
   const n=sh.querySelector('#en').value.trim();if(!n){toast('Машқ номини киритинг');return}
-  ex.name=n;ex.type=sh.querySelector('#et').value;
+  ex.name=n;ex.type=sh.querySelector('#et').value;if(img)ex.img=img;else delete ex.img;
   if(S.active)S.active.exercises.forEach(e=>{if(e.exId===id&&!e.sets.some(s=>s.done)){e.type=ex.type;e.name=n}});
   save();sh.remove();render();toast('Сақланди ✓');
  };
 }
 
+const exImg=id=>{const e=S.ex.find(x=>x.id===id);return e&&e.img||''};
+const thumb=(id,name,sz,act)=>{const im=exImg(id);return `<span class="th" style="width:${sz}px;height:${sz}px;font-size:${Math.round(sz/2.4)}px" ${act?`data-a="${act}"`:''}>${im?`<img src="${im}" alt="">`:(act&&act.startsWith('img')?'📷':esc((name||'?').trim()[0]||'?'))}</span>`};
+function readImg(cb){
+ const i=document.createElement('input');i.type='file';i.accept='image/*';
+ i.onchange=()=>{const f=i.files[0];if(!f)return;const u=URL.createObjectURL(f),im=new Image();
+  im.onload=()=>{const M=480,k=Math.min(1,M/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
+   const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);cb(c.toDataURL('image/jpeg',0.72))};
+  im.onerror=()=>toast('Расмни очиб бўлмади');im.src=u};
+ i.click();
+}
+function viewImg(id){
+ const e=S.ex.find(x=>x.id===id);if(!e)return;
+ if(!e.img){readImg(d=>{e.img=d;save();render();toast('Расм қўйилди ✓')});return}
+ const v=document.createElement('div');v.className='imgv';
+ v.innerHTML=`<img src="${e.img}" alt=""><div style="color:#fff;font-weight:800;font-size:20px;margin:14px 0">${esc(e.name)}</div><div class="row" style="gap:10px"><button class="btn sm" data-c style="color:#fff;background:rgba(255,255,255,.15)">Ёпиш</button><button class="btn sm" data-n style="color:#fff;background:rgba(255,255,255,.15)">📷 Алмаштириш</button></div>`;
+ v.onclick=ev=>{if(ev.target.closest('[data-n]')){v.remove();readImg(d=>{e.img=d;save();render();toast('Расм алмашди ✓')});return}v.remove()};
+ document.body.appendChild(v);
+}
+function imgField(sh,get,set){
+ const draw=()=>{const im=get();sh.querySelector('#ip').innerHTML=im?`<img src="${im}" alt="">`:'📷 Расм йўқ';sh.querySelector('#ix').style.display=im?'':'none'};
+ draw();
+ sh.querySelector('#ib').onclick=()=>readImg(d=>{set(d);draw()});
+ sh.querySelector('#ix').onclick=()=>{set('');draw()};
+}
+const IMG_UI=`<div class="ipv" id="ip"></div><div class="row" style="gap:8px;margin-bottom:12px"><button class="btn sm sp" id="ib" style="width:100%">📷 Расм танлаш / суратга олиш</button><button class="btn sm d" id="ix">✕</button></div>`;
 const restOf=id=>{const e=S.ex.find(x=>x.id===id);if(!e)return 90;if(e.rest==null)return e.type==='t'?0:90;return e.rest};
 let AC=null;
 function audioUnlock(){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}catch(e){}}
@@ -503,7 +538,7 @@ function restore(){
 /* ---------- Машқлар ---------- */
 function rEx(){
  $('#main').innerHTML=`<button class="btn p" data-a="newex">+ Янги машқ</button>`+
- (S.ex.map(e=>`<div class="li"><span class="sp"><b>${esc(e.name)}</b><br><small class="mu">${exLabel(e.type)}</small></span>
+ (S.ex.map(e=>`<div class="li">${thumb(e.id,e.name,44,'img:'+e.id)}<span class="sp"><b>${esc(e.name)}</b><br><small class="mu">${exLabel(e.type)}</small></span>
  ${e.type==='t'?`<button class="btn sm" data-a="pge:${e.id}">${e.progs&&e.progs.length?e.progs.length+' дастур':'Дастур'}</button>`:''}<button class="btn sm" data-a="rnx:${e.id}">✎</button><button class="btn sm d" data-a="delx:${e.id}">✕</button></div>`).join('')||'<div class="empty">Машқлар йўқ</div>');
 }
 
@@ -531,6 +566,7 @@ document.addEventListener('click',e=>{
  else if(a==='finish')finish();
  else if(a==='discard'){if(confirm('Машғулот бекор қилинсинми?')){S.active=null;restStop();save();render()}}
  else if(a==='rset')restPick(ei);
+ else if(a==='img')viewImg(x);
  else if(a==='delw'){if(confirm('Машғулот ўчирилсинми?')){S.wo=S.wo.filter(w=>w.id!==x);save();render()}}
  else if(a==='newex')newEx();
  else if(a==='rnx')editEx(x);
