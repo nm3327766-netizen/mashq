@@ -33,8 +33,19 @@ main{padding:14px 14px 110px}
 .in{width:100%;padding:11px 12px;border-radius:12px;background:var(--in);border:1px solid var(--ln);outline:none}
 .n{width:100%;height:38px;text-align:center;border-radius:10px;background:var(--in);font-weight:600;min-width:0;outline:none}
 .n:focus,.in:focus{border-color:var(--ac)}
-.sets{display:grid;grid-template-columns:34px 1fr 1fr 48px;gap:6px;align-items:center;margin-bottom:6px}
+.sets{display:grid;grid-template-columns:26px 1.25fr 1fr 1fr 44px;gap:6px;align-items:center;margin-bottom:6px}
 .sets.h{font-size:12px;color:var(--mu);text-align:center}
+.pv{height:38px;border-radius:10px;border:1px dashed var(--ln);color:var(--mu);font-size:13px;font-weight:600;line-height:1.1;overflow:hidden;padding:0 2px}
+.pv.has{color:var(--tx);border-style:solid;background:var(--card)}
+.rt{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--ln)}
+.rt button{height:36px;border-radius:10px;background:var(--in);font-weight:700}
+.rt button.on,.rb.on{color:#fff}
+.r1{background:#22c55e!important}.r2{background:#84cc16!important}.r3{background:#eab308!important}.r4{background:#f97316!important}.r5{background:#ef4444!important}
+.rb{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border-radius:12px;background:var(--in);margin-bottom:8px;font-weight:600;text-align:left}
+.rb b{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff}
+.adv{display:inline-block;border-radius:8px;padding:4px 8px;font-size:13px;font-weight:700;margin-bottom:10px}
+.adv.up{background:#dcfce7;color:#166534}.adv.eq{background:#fef9c3;color:#854d0e}.adv.st{background:#fee2e2;color:#991b1b}
+@media (prefers-color-scheme:dark){.adv.up{background:#14361f;color:#86efac}.adv.eq{background:#3a320a;color:#fde047}.adv.st{background:#3b1414;color:#fca5a5}}
 .ck{height:38px;border-radius:10px;background:var(--in);font-weight:700;font-size:18px}
 .ck.on{background:var(--ok);color:#fff}
 #nav{position:fixed;left:0;right:0;bottom:0;height:calc(64px + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);background:var(--card);border-top:1px solid var(--ln);display:flex;z-index:10}
@@ -50,6 +61,11 @@ main{padding:14px 14px 110px}
 .stats b{font-size:20px}
 .pr{background:#fef3c7;color:#92400e;border-radius:12px;padding:10px;margin-bottom:8px;font-weight:600}
 @media (prefers-color-scheme:dark){.pr{background:#3a2c0a;color:#fcd34d}}
+.prog{width:100%;height:38px;border-radius:10px;background:var(--in);font-weight:700;font-size:14px;color:var(--ac);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
+.prog.no{color:var(--mu);font-weight:600}
+.pg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.pg button{padding:16px 8px;border-radius:12px;background:var(--in);font-weight:700;border:2px solid transparent}
+.pg button.on{border-color:var(--ac);color:var(--ac)}
 .empty{text-align:center;color:var(--mu);padding:30px 10px}
 #toast{position:fixed;left:50%;top:20px;transform:translate(-50%,-120px);background:#111827;color:#fff;padding:12px 18px;border-radius:12px;z-index:99;transition:transform .25s;font-size:15px;white-space:nowrap;max-width:90%}
 #toast.on{transform:translate(-50%,0)}
@@ -80,8 +96,14 @@ const shortD=t=>{const d=new Date(t);return `${pad(d.getDate())}.${pad(d.getMont
 const fmtDur=ms=>{const m=Math.round(ms/60000);if(m<1)return '1 дақ';const h=Math.floor(m/60);return h?`${h} соат ${m%60} дақ`:`${m} дақ`};
 const clock=ms=>{const s=Math.max(0,Math.floor(ms/1000)),h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return h?`${h}:${pad(m)}:${pad(x)}`:`${m}:${pad(x)}`};
 const weekStart=t=>{const d=new Date(t);d.setHours(0,0,0,0);d.setDate(d.getDate()-(d.getDay()+6)%7);return d.getTime()};
-const exLabel=t=>t==='t'?'Вақт (дақиқа)':'Вазн × такрор (кг)';
+const exLabel=t=>t==='t'?'Вақт (дақиқа)':t==='r'?'Фақат такрор (ўз вазни)':'Вазн × такрор (кг)';
+const TYPE_OPTS=v=>[['w','Вазн × такрор (кг)'],['r','Фақат такрор (ўз вазни)'],['t','Вақт (дақиқа)']].map(([k,n])=>`<option value="${k}"${k===v?' selected':''}>${n}</option>`).join('');
 
+function defProgs(){return [1,2,3,4,5,6].map(i=>'Дастур '+i)}
+const exDef=id=>S.ex.find(e=>e.id===id);
+const progsOf=id=>{const e=exDef(id);return e&&Array.isArray(e.progs)&&e.progs.length?e.progs:null};
+const progName=(id,p)=>{if(p==null||p==='')return '';const l=progsOf(id);return l&&l[p]!=null?l[p]:'Дастур '+(+p+1)};
+const setTxt=(e,s)=>e.type==='t'?`${fmtK(s.a)} дақ${s.p!=null&&s.p!==''?' ('+progName(e.exId,s.p)+')':''}`:e.type==='r'?`${s.b} та`:`${fmtK(s.a)}×${s.b}`;
 function load(){
  let d=null;try{d=JSON.parse(localStorage.getItem(KEY))}catch(e){}
  if(!d||!Array.isArray(d.ex)){d={ex:[
@@ -89,9 +111,12 @@ function load(){
   {id:uid(),name:'Ётиб штанга сиқиш',type:'w'},
   {id:uid(),name:'Становой тортиш',type:'w'},
   {id:uid(),name:'Юқори блокни тортиш',type:'w'},
-  {id:uid(),name:'Югуриш',type:'t'},
+  {id:uid(),name:'Турникда тортилиш',type:'r'},
+  {id:uid(),name:'Югуриш',type:'t',progs:defProgs()},
   {id:uid(),name:'Планка',type:'t'}],wo:[],active:null}}
- d.wo=d.wo||[];d.active=d.active||null;return d;
+ d.wo=d.wo||[];d.active=d.active||null;
+ d.ex.forEach(e=>{if(e.type==='t'&&e.name==='Югуриш'&&!Array.isArray(e.progs))e.progs=defProgs()});
+ return d;
 }
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('⚠️ Хотира тўлди')}}
 let S=load();
@@ -100,6 +125,10 @@ let tab='today';
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),2200)}
 function sheet(html){const bg=document.createElement('div');bg.className='ov';bg.innerHTML=`<div class="sheet">${html}</div>`;document.body.appendChild(bg);bg.onclick=e=>{if(e.target===bg)bg.remove()};return bg}
 const lastEx=id=>{for(let i=S.wo.length-1;i>=0;i--){const e=S.wo[i].exercises.find(x=>x.exId===id);if(e)return e}return null};
+const RATE=['','Жуда осон','Осон','Ўртача','Қийин','Жуда қийин'];
+const advice=r=>!r?'':r<=2?`<div class="adv up">Олдинги баҳо: ${r} — ⬆ бу сафар кучайтиринг</div>`:r<=4?`<div class="adv eq">Олдинги баҳо: ${r} — шу ҳолича давом этинг</div>`:`<div class="adv st">Олдинги баҳо: ${r} — ⏸ кучайтирманг</div>`;
+const lastWo=id=>{for(let i=S.wo.length-1;i>=0;i--){if(S.wo[i].exercises.some(x=>x.exId===id))return S.wo[i]}return null};
+const pvTxt=(ex,q)=>{if(!q)return '—';if(ex.type==='t'){const pn=q.p!=null?progName(ex.exId,q.p):'';return `${fmtK(q.a)} дақ${pn?'<br><small>'+esc(pn)+'</small>':''}`}if(ex.type==='r')return `${q.b??0} та`;return `${fmtK(q.a)} кг × ${q.b}`};
 
 function render(){
  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
@@ -126,19 +155,22 @@ function rToday(){
 }
 
 function exBlock(ex,ei){
- const t=ex.type==='t',prev=lastEx(ex.exId);
- const pl=prev?prev.sets.map(s=>t?`${fmtK(s.a)} дақ`:`${fmtK(s.a)}×${s.b}`).join(', '):'биринчи марта';
+ const t=ex.type==='t',r=ex.type==='r',prev=lastEx(ex.exId),hp=t&&progsOf(ex.exId);
  return `<div class="card">
  <div class="row" style="margin-bottom:2px"><b class="sp" style="font-size:17px">${esc(ex.name)}</b><button class="btn sm d" data-a="rm:${ei}">✕</button></div>
- <div class="mu sm" style="margin-bottom:10px">Олдинги: ${esc(pl)}</div>
- <div class="sets h"><span>№</span><span>${t?'ДАҚИҚА':'КГ'}</span><span>${t?'':'ТАКРОР'}</span><span>✓</span></div>
+ <div class="mu sm" style="margin-bottom:${prev&&prev.rate?4:10}px">${prev?`Охирги марта: ${shortD(lastWo(ex.exId).start)}`:'Биринчи марта бажариляпти'}</div>
+ ${prev?advice(prev.rate):''}
+ <div class="sets h"><span>№</span><span>ОЛДИНГИ</span><span>${t?'ДАҚИҚА':r?'ТАКРОР':'КГ'}</span><span>${t?(hp?'ДАСТУР':''):r?'':'ТАКРОР'}</span><span>✓</span></div>
  ${ex.sets.map((s,si)=>{const p=prev&&prev.sets[si];return `<div class="sets">
   <span class="mu" style="text-align:center">${si+1}</span>
-  <input class="n" inputmode="decimal" value="${esc(s.a)}" placeholder="${p?fmtK(p.a):(t?'дақ':'кг')}" data-f="a" data-e="${ei}" data-s="${si}">
-  ${t?'<span></span>':`<input class="n" inputmode="numeric" value="${esc(s.b)}" placeholder="${p?p.b:'0'}" data-f="b" data-e="${ei}" data-s="${si}">`}
+  <button class="pv ${p?'has':''}" ${p?`data-a="cp:${ei}:${si}"`:''}>${pvTxt(ex,p)}</button>
+  ${r?`<input class="n" inputmode="numeric" value="${esc(s.b)}" placeholder="${p&&p.b?p.b:'0'}" data-f="b" data-e="${ei}" data-s="${si}"><span></span>`:`<input class="n" inputmode="decimal" value="${esc(s.a)}" placeholder="${p?fmtK(p.a):(t?'дақ':'кг')}" data-f="a" data-e="${ei}" data-s="${si}">`}
+  ${r?'':t?(hp?`<button class="prog ${s.p==null||s.p===''?'no':''}" data-a="prog:${ei}:${si}">${s.p==null||s.p===''?(p&&p.p!=null?esc(progName(ex.exId,p.p)):'Танланг ▾'):esc(progName(ex.exId,s.p))}</button>`:'<span></span>'):`<input class="n" inputmode="numeric" value="${esc(s.b)}" placeholder="${p?p.b:'0'}" data-f="b" data-e="${ei}" data-s="${si}">`}
   <button class="ck ${s.done?'on':''}" data-a="done:${ei}:${si}">✓</button>
  </div>`}).join('')}
  <div class="row sm" style="gap:18px;margin-top:4px"><button class="mu" data-a="addset:${ei}">+ Сет</button>${prev?`<button class="mu" data-a="use:${ei}">↺ Олдингидек</button>`:''}</div>
+ <div class="rt">${[1,2,3,4,5].map(n=>`<button class="${ex.rate===n?'on r'+n:''}" data-a="rate:${ei}:${n}">${n}</button>`).join('')}</div>
+ <div class="mu sm" style="text-align:center;margin-top:4px">${ex.rate?'Баҳо: '+RATE[ex.rate]:'Баҳо: 1 — осон … 5 — жуда қийин'}</div>
  </div>`;
 }
 
@@ -172,15 +204,66 @@ function addEx(id){
 function newEx(){
  const sh=sheet(`<div style="font-weight:800;font-size:18px;margin-bottom:12px">Янги машқ</div>
  <input class="in" id="en" placeholder="Машқ номи" style="margin-bottom:10px">
- <select class="in" id="et" style="margin-bottom:14px"><option value="w">Вазн × такрор (кг)</option><option value="t">Вақт (дақиқа)</option></select>
+ <select class="in" id="et" style="margin-bottom:14px">${TYPE_OPTS('w')}</select>
  <button class="btn p" id="ok">Сақлаш</button>`);
  sh.querySelector('#ok').onclick=()=>{
   const name=sh.querySelector('#en').value.trim();
   if(!name){toast('Машқ номини киритинг');return}
-  const ex={id:uid(),name,type:sh.querySelector('#et').value};
+  const ex={id:uid(),name,type:sh.querySelector('#et').value};if(ex.type==='t'&&name==='Югуриш')ex.progs=defProgs();
   S.ex.push(ex);save();sh.remove();
   if(S.active)addEx(ex.id);else render();
  };
+}
+
+function progPick(ei,si,thenDone){
+ const ex=S.active.exercises[ei],s=ex.sets[si],l=progsOf(ex.exId)||[];
+ const sh=sheet(`<div style="font-weight:800;font-size:18px;margin-bottom:4px">Дастурни танланг</div>
+ <div class="mu sm" style="margin-bottom:12px">${esc(ex.name)}</div>
+ <div class="pg">${l.map((n,i)=>`<button class="${+s.p===i&&s.p!==null&&s.p!==''?'on':''}" data-p="${i}">${esc(n)}</button>`).join('')}</div>
+ <button class="btn" id="ed">✎ Номларини ўзгартириш</button>`);
+ sh.querySelector('.pg').onclick=e=>{const b=e.target.closest('[data-p]');if(!b)return;s.p=+b.dataset.p;sh.remove();save();if(thenDone)toggle(ei,si);else render()};
+ sh.querySelector('#ed').onclick=()=>{sh.remove();progEdit(ex.exId)};
+}
+
+function progEdit(id){
+ const ex=exDef(id);if(!ex)return;
+ let l=(ex.progs||[]).slice();if(!l.length)l=defProgs();
+ const sh=sheet(`<div style="font-weight:800;font-size:18px;margin-bottom:4px">${esc(ex.name)} — дастурлар</div>
+ <div class="mu sm" style="margin-bottom:12px">Йўлакчадаги номлар билан ёзинг</div>
+ <div id="pl"></div>
+ <button class="btn" id="ad">+ Дастур қўшиш</button>
+ <button class="btn p" id="ok">Сақлаш</button>
+ ${ex.progs&&ex.progs.length?'<button class="btn d" id="off">Дастур танлашни ўчириш</button>':''}`);
+ const rd=()=>{l=[...sh.querySelectorAll('[data-i]')].map(i=>i.value)};
+ const draw=()=>{sh.querySelector('#pl').innerHTML=l.map((n,i)=>`<div class="row" style="margin-bottom:8px"><span class="mu" style="width:20px">${i+1}</span><input class="in sp" data-i="${i}" value="${esc(n)}"><button class="btn sm d" data-r="${i}">✕</button></div>`).join('')};
+ draw();
+ sh.querySelector('#pl').onclick=e=>{const b=e.target.closest('[data-r]');if(!b)return;rd();l.splice(+b.dataset.r,1);draw()};
+ sh.querySelector('#ad').onclick=()=>{rd();l.push('Дастур '+(l.length+1));draw()};
+ sh.querySelector('#ok').onclick=()=>{rd();l=l.map((n,i)=>n.trim()||'Дастур '+(i+1));ex.progs=l;save();sh.remove();render();toast('Сақланди ✓')};
+ const off=sh.querySelector('#off');if(off)off.onclick=()=>{if(confirm('Бу машқда дастур танлаш ўчирилсинми?')){ex.progs=[];save();sh.remove();render()}};
+}
+
+function editEx(id){
+ const ex=S.ex.find(v=>v.id===id);if(!ex)return;
+ const sh=sheet(`<div style="font-weight:800;font-size:18px;margin-bottom:12px">Машқни таҳрирлаш</div>
+ <input class="in" id="en" value="${esc(ex.name)}" style="margin-bottom:10px">
+ <select class="in" id="et" style="margin-bottom:14px">${TYPE_OPTS(ex.type)}</select>
+ <button class="btn p" id="ok">Сақлаш</button>`);
+ sh.querySelector('#ok').onclick=()=>{
+  const n=sh.querySelector('#en').value.trim();if(!n){toast('Машқ номини киритинг');return}
+  ex.name=n;ex.type=sh.querySelector('#et').value;
+  if(S.active)S.active.exercises.forEach(e=>{if(e.exId===id&&!e.sets.some(s=>s.done)){e.type=ex.type;e.name=n}});
+  save();sh.remove();render();toast('Сақланди ✓');
+ };
+}
+
+function rateAsk(ei){
+ const ex=S.active.exercises[ei];
+ const sh=sheet(`<div style="font-weight:800;font-size:18px;margin-bottom:4px">Қанчалик қийин бўлди?</div>
+ <div class="mu sm" style="margin-bottom:12px">${esc(ex.name)}</div>
+ ${[1,2,3,4,5].map(n=>`<button class="rb" data-r="${n}"><b class="r${n}">${n}</b>${RATE[n]}</button>`).join('')}
+ <button class="btn" data-x style="margin-top:4px">Кейинроқ</button>`);
+ sh.onclick=e=>{if(e.target===sh||e.target.closest('[data-x]')){sh.remove();return}const b=e.target.closest('[data-r]');if(!b)return;ex.rate=+b.dataset.r;save();sh.remove();render()};
 }
 
 function toggle(ei,si){
@@ -190,34 +273,40 @@ function toggle(ei,si){
  if(ex.type==='t'){
   if(!s.a&&pv)s.a=String(pv.a);
   if(!num(s.a)){toast('Вақтни (дақиқа) киритинг');return}
+  if(progsOf(ex.exId)&&(s.p==null||s.p==='')){
+   if(pv&&pv.p!=null)s.p=pv.p;
+   else{progPick(ei,si,true);return}
+  }
  }else{
   if(!s.a)s.a='0';
   if(!num(s.b)&&pv&&pv.b)s.b=String(pv.b);
   if(!num(s.b)){toast('Такрор сонини киритинг');return}
  }
  s.done=true;if(navigator.vibrate)navigator.vibrate(40);save();render();
+ if(!ex.rate&&ex.sets.every(x=>x.done))rateAsk(ei);
 }
 
 function useLast(ei){
  const ex=S.active.exercises[ei],p=lastEx(ex.exId);if(!p)return;
- ex.sets.forEach((s,k)=>{const q=p.sets[k];if(q){s.a=String(q.a);s.b=ex.type==='t'?'':String(q.b)}});
+ ex.sets.forEach((s,k)=>{const q=p.sets[k];if(q){s.a=q.a!=null?String(q.a):'';s.b=ex.type==='t'||q.b==null?'':String(q.b);if(q.p!=null)s.p=q.p}});
  save();render();
 }
 
 function finish(){
  const act=S.active;
- const exs=act.exercises.map(e=>({exId:e.exId,name:e.name,type:e.type,
-  sets:e.sets.filter(s=>s.done).map(s=>e.type==='t'?{a:num(s.a)}:{a:num(s.a),b:Math.round(num(s.b))})})).filter(e=>e.sets.length);
+ const exs=act.exercises.map(e=>({exId:e.exId,name:e.name,type:e.type,...(e.rate?{rate:e.rate}:{}),
+  sets:e.sets.filter(s=>s.done).map(s=>e.type==='t'?(s.p!=null&&s.p!==''?{a:num(s.a),p:+s.p}:{a:num(s.a)}):e.type==='r'?{b:Math.round(num(s.b))}:{a:num(s.a),b:Math.round(num(s.b))})})).filter(e=>e.sets.length);
  if(!exs.length){
   if(confirm('Бирорта сет бажарилмаган. Машғулотни бекор қиласизми?')){S.active=null;save();render()}
   return;
  }
  const prs=[];
  exs.forEach(e=>{
-  const hist=S.wo.flatMap(w=>w.exercises.filter(x=>x.exId===e.exId).flatMap(x=>x.sets.map(s=>s.a)));
+  const f=e.type==='r'?(s=>+s.b||0):(s=>+s.a||0);
+  const hist=S.wo.flatMap(w=>w.exercises.filter(x=>x.exId===e.exId&&(x.type==='r')===(e.type==='r')).flatMap(x=>x.sets.map(f)));
   if(!hist.length)return;
-  const best=Math.max(...hist),now=Math.max(...e.sets.map(s=>s.a));
-  if(now>best)prs.push(`${e.name}: ${fmtK(now)} ${e.type==='t'?'дақ':'кг'}`);
+  const best=Math.max(...hist),now=Math.max(...e.sets.map(f));
+  if(now>best)prs.push(`${e.name}: ${fmtK(now)} ${e.type==='t'?'дақ':e.type==='r'?'та':'кг'}`);
  });
  S.wo.push({id:uid(),name:act.name.trim()||'Машғулот',start:act.start,end:Date.now(),exercises:exs});
  S.active=null;save();tab='hist';render();
@@ -242,7 +331,7 @@ function rHist(){
  ${list.map(w=>`<div class="card">
   <div class="row" style="margin-bottom:2px"><b class="sp">${esc(w.name)}</b><button class="btn sm d" data-a="delw:${w.id}">✕</button></div>
   <div class="mu sm" style="margin-bottom:8px">${fmtDate(w.start)} · ${fmtDur(w.end-w.start)}</div>
-  <div class="sm">${w.exercises.map(e=>`<div style="padding:2px 0"><b>${esc(e.name)}</b>: ${e.sets.map(s=>e.type==='t'?`${fmtK(s.a)} дақ`:`${fmtK(s.a)}×${s.b}`).join(', ')}</div>`).join('')}</div>
+  <div class="sm">${w.exercises.map(e=>`<div style="padding:2px 0"><b>${esc(e.name)}</b>: ${e.sets.map(s=>setTxt(e,s)).join(', ')}${e.rate?` <span class="mu">· баҳо ${e.rate}</span>`:''}</div>`).join('')}</div>
  </div>`).join('')||'<div class="empty">Ҳали машғулот йўқ.<br>«Машғулот» бўлимидан бошланг 💪</div>'}
  <div class="card">
   <div class="mu sm" style="margin-bottom:10px">Маълумотлар фақат шу телефонда сақланади. Телефон алмаштиришдан олдин захира олинг.</div>
@@ -274,7 +363,7 @@ function restore(){
 function rEx(){
  $('#main').innerHTML=`<button class="btn p" data-a="newex">+ Янги машқ</button>`+
  (S.ex.map(e=>`<div class="li"><span class="sp"><b>${esc(e.name)}</b><br><small class="mu">${exLabel(e.type)}</small></span>
- <button class="btn sm" data-a="rnx:${e.id}">✎</button><button class="btn sm d" data-a="delx:${e.id}">✕</button></div>`).join('')||'<div class="empty">Машқлар йўқ</div>');
+ ${e.type==='t'?`<button class="btn sm" data-a="pge:${e.id}">${e.progs&&e.progs.length?e.progs.length+' дастур':'Дастур'}</button>`:''}<button class="btn sm" data-a="rnx:${e.id}">✎</button><button class="btn sm d" data-a="delx:${e.id}">✕</button></div>`).join('')||'<div class="empty">Машқлар йўқ</div>');
 }
 
 /* ---------- Ҳодисалар ---------- */
@@ -286,15 +375,19 @@ document.addEventListener('click',e=>{
  if(a==='start')startW(null);
  else if(a==='repeat')startW(S.wo[S.wo.length-1]);
  else if(a==='pick')pickEx();
- else if(a==='addset'){const ex=S.active.exercises[ei];const l=ex.sets[ex.sets.length-1];ex.sets.push({a:l?l.a:'',b:l?l.b:'',done:false});save();render()}
+ else if(a==='addset'){const ex=S.active.exercises[ei];const l=ex.sets[ex.sets.length-1];ex.sets.push({a:l?l.a:'',b:l?l.b:'',p:l?l.p:null,done:false});save();render()}
  else if(a==='done')toggle(ei,si);
+ else if(a==='prog')progPick(ei,si,false);
+ else if(a==='pge')progEdit(x);
  else if(a==='use')useLast(ei);
+ else if(a==='rate'){const ex=S.active.exercises[ei];ex.rate=ex.rate===si?null:si;save();render()}
+ else if(a==='cp'){const ex=S.active.exercises[ei],q=lastEx(ex.exId)?.sets[si],st=ex.sets[si];if(q&&st&&!st.done){if(q.a!=null)st.a=String(q.a);if(ex.type!=='t'&&q.b!=null)st.b=String(q.b);if(q.p!=null)st.p=q.p;save();render()}}
  else if(a==='rm'){if(confirm('Машқни олиб ташлайсизми?')){S.active.exercises.splice(ei,1);save();render()}}
  else if(a==='finish')finish();
  else if(a==='discard'){if(confirm('Машғулот бекор қилинсинми?')){S.active=null;save();render()}}
  else if(a==='delw'){if(confirm('Машғулот ўчирилсинми?')){S.wo=S.wo.filter(w=>w.id!==x);save();render()}}
  else if(a==='newex')newEx();
- else if(a==='rnx'){const ex=S.ex.find(v=>v.id===x);const n=ex&&prompt('Янги номи',ex.name);if(n&&n.trim()){ex.name=n.trim();save();render()}}
+ else if(a==='rnx')editEx(x);
  else if(a==='delx'){const ex=S.ex.find(v=>v.id===x);if(ex&&confirm(`«${ex.name}» рўйхатдан ўчирилсинми?\nОлдинги машғулотлар сақланади.`)){S.ex=S.ex.filter(v=>v.id!==x);save();render()}}
  else if(a==='backup')backup();
  else if(a==='restore')restore();
