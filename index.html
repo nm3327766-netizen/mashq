@@ -49,7 +49,7 @@ main{padding:14px 14px 110px}
 .ck{height:38px;border-radius:10px;background:var(--in);font-weight:700;font-size:18px}
 .ck.on{background:var(--ok);color:#fff}
 #nav{position:fixed;left:0;right:0;bottom:0;height:calc(64px + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);background:var(--card);border-top:1px solid var(--ln);display:flex;z-index:10}
-#nav button{flex:1;color:var(--mu);font-size:14px;font-weight:600}
+#nav button{flex:1;color:var(--mu);font-size:13px;font-weight:600}
 #nav button.on{color:var(--ac)}
 .li{display:flex;align-items:center;gap:10px;padding:12px 2px;border-bottom:1px solid var(--ln);width:100%;text-align:left}
 .li:last-child{border:0}
@@ -61,11 +61,18 @@ main{padding:14px 14px 110px}
 .stats b{font-size:20px}
 .pr{background:#fef3c7;color:#92400e;border-radius:12px;padding:10px;margin-bottom:8px;font-weight:600}
 @media (prefers-color-scheme:dark){.pr{background:#3a2c0a;color:#fcd34d}}
-.prog{width:100%;height:38px;border-radius:10px;background:var(--in);font-weight:700;font-size:14px;color:var(--ac);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
+.prog{width:100%;height:38px;border-radius:10px;background:var(--in);font-weight:700;font-size:13px;color:var(--ac);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
 .prog.no{color:var(--mu);font-weight:600}
 .pg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
 .pg button{padding:16px 8px;border-radius:12px;background:var(--in);font-weight:700;border:2px solid transparent}
 .pg button.on{border-color:var(--ac);color:var(--ac)}
+.days{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+.days button{flex:1;min-width:38px;height:36px;border-radius:10px;background:var(--in);font-size:13px;font-weight:700}
+.days button.on{background:var(--ac);color:#fff}
+.tg{display:inline-block;background:var(--in);border-radius:6px;padding:2px 6px;font-size:12px;font-weight:700;margin-right:4px}
+.tg.on{background:var(--ac);color:#fff}
+.tc.today{border:2px solid var(--ac)}
+.n.s{width:52px;flex:none}
 .empty{text-align:center;color:var(--mu);padding:30px 10px}
 #toast{position:fixed;left:50%;top:20px;transform:translate(-50%,-120px);background:#111827;color:#fff;padding:12px 18px;border-radius:12px;z-index:99;transition:transform .25s;font-size:15px;white-space:nowrap;max-width:90%}
 #toast.on{transform:translate(-50%,0)}
@@ -76,6 +83,7 @@ main{padding:14px 14px 110px}
 <main id="main"></main>
 <nav id="nav">
  <button data-tab="today">Машғулот</button>
+ <button data-tab="tpl">Тўпламлар</button>
  <button data-tab="hist">Тарих</button>
  <button data-tab="ex">Машқлар</button>
 </nav>
@@ -115,6 +123,7 @@ function load(){
   {id:uid(),name:'Югуриш',type:'t',progs:defProgs()},
   {id:uid(),name:'Планка',type:'t'}],wo:[],active:null}}
  d.wo=d.wo||[];d.active=d.active||null;
+ if(!Array.isArray(d.tpl))d.tpl=[{id:uid(),name:'1-тўплам',days:[1,3,5],items:[]},{id:uid(),name:'2-тўплам',days:[2,4,6],items:[]}];
  d.ex.forEach(e=>{if(e.type==='t'&&e.name==='Югуриш'&&!Array.isArray(e.progs))e.progs=defProgs()});
  return d;
 }
@@ -132,8 +141,8 @@ const pvTxt=(ex,q)=>{if(!q)return '—';if(ex.type==='t'){const pn=q.p!=null?pro
 
 function render(){
  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
- $('#hd').textContent=tab==='today'?'Машғулот':tab==='hist'?'Тарих':'Машқлар';
- if(tab==='today')rToday();else if(tab==='hist')rHist();else rEx();
+ $('#hd').textContent=tab==='today'?'Машғулот':tab==='hist'?'Тарих':tab==='tpl'?'Тўпламлар':'Машқлар';
+ if(tab==='today')rToday();else if(tab==='hist')rHist();else if(tab==='tpl')rTpl();else rEx();
 }
 
 /* ---------- Машғулот ---------- */
@@ -141,9 +150,13 @@ function rToday(){
  const m=$('#main');
  if(!S.active){
   const last=S.wo[S.wo.length-1];
-  m.innerHTML=`<button class="btn p" data-a="start">+ Бўш машғулот бошлаш</button>
-  ${last?'<button class="btn" data-a="repeat">↻ Охирги машғулотни такрорлаш</button>':''}
-  <div class="empty">Машғулот бошлаш учун тугмани босинг</div>`;
+  const td=new Date().getDay(),tl=S.tpl.filter(t=>t.items.length);
+  const tod=tl.filter(t=>t.days.includes(td)),oth=tl.filter(t=>!t.days.includes(td));
+  m.innerHTML=`${tod.length?`<div class="mu sm" style="margin:2px 2px 8px;font-weight:700">БУГУН — ${WD[td].toUpperCase()}</div>${tod.map(t=>tplCard(t,true)).join('')}`:''}
+  ${oth.length?`<div class="mu sm" style="margin:6px 2px 8px;font-weight:700">${tod.length?'БОШҚА ТЎПЛАМЛАР':'ТЎПЛАМЛАР'}</div>${oth.map(t=>tplCard(t,false)).join('')}`:''}
+  ${!tl.length?'<div class="card mu sm">Машқлар тўпламини «Тўпламлар» бўлимида олдиндан яратиб қўйинг. Кейин шу ердан бир босишда бошлайсиз.</div>':''}
+  <button class="btn" data-a="start">+ Бўш машғулот бошлаш</button>
+  ${last?'<button class="btn" data-a="repeat">↻ Охирги машғулотни такрорлаш</button>':''}`;
   return;
  }
  const act=S.active;
@@ -165,13 +178,84 @@ function exBlock(ex,ei){
   <span class="mu" style="text-align:center">${si+1}</span>
   <button class="pv ${p?'has':''}" ${p?`data-a="cp:${ei}:${si}"`:''}>${pvTxt(ex,p)}</button>
   ${r?`<input class="n" inputmode="numeric" value="${esc(s.b)}" placeholder="${p&&p.b?p.b:'0'}" data-f="b" data-e="${ei}" data-s="${si}"><span></span>`:`<input class="n" inputmode="decimal" value="${esc(s.a)}" placeholder="${p?fmtK(p.a):(t?'дақ':'кг')}" data-f="a" data-e="${ei}" data-s="${si}">`}
-  ${r?'':t?(hp?`<button class="prog ${s.p==null||s.p===''?'no':''}" data-a="prog:${ei}:${si}">${s.p==null||s.p===''?(p&&p.p!=null?esc(progName(ex.exId,p.p)):'Танланг ▾'):esc(progName(ex.exId,s.p))}</button>`:'<span></span>'):`<input class="n" inputmode="numeric" value="${esc(s.b)}" placeholder="${p?p.b:'0'}" data-f="b" data-e="${ei}" data-s="${si}">`}
+  ${r?'':t?(hp?`<button class="prog ${s.p==null||s.p===''?'no':''}" data-a="prog:${ei}:${si}">${s.p==null||s.p===''?(p&&p.p!=null?esc(progName(ex.exId,p.p)):'Танла'):esc(progName(ex.exId,s.p))}</button>`:'<span></span>'):`<input class="n" inputmode="numeric" value="${esc(s.b)}" placeholder="${p?p.b:'0'}" data-f="b" data-e="${ei}" data-s="${si}">`}
   <button class="ck ${s.done?'on':''}" data-a="done:${ei}:${si}">✓</button>
  </div>`}).join('')}
  <div class="row sm" style="gap:18px;margin-top:4px"><button class="mu" data-a="addset:${ei}">+ Сет</button>${prev?`<button class="mu" data-a="use:${ei}">↺ Олдингидек</button>`:''}</div>
  <div class="rt">${[1,2,3,4,5].map(n=>`<button class="${ex.rate===n?'on r'+n:''}" data-a="rate:${ei}:${n}">${n}</button>`).join('')}</div>
  <div class="mu sm" style="text-align:center;margin-top:4px">${ex.rate?'Баҳо: '+RATE[ex.rate]:'Баҳо: 1 — осон … 5 — жуда қийин'}</div>
  </div>`;
+}
+
+const DORD=[1,2,3,4,5,6,0],DSH=['Як','Ду','Се','Чо','Па','Жу','Ша'];
+const tplEx=t=>t.items.map(i=>({...i,ex:S.ex.find(e=>e.id===i.exId)})).filter(i=>i.ex);
+function tplCard(t,today){
+ const it=tplEx(t);
+ return `<div class="card tc ${today?'today':''}">
+ <div class="row" style="margin-bottom:6px"><b class="sp" style="font-size:17px">${esc(t.name)}</b></div>
+ <div style="margin-bottom:8px">${DORD.filter(d=>t.days.includes(d)).map(d=>`<span class="tg ${d===new Date().getDay()?'on':''}">${DSH[d]}</span>`).join('')||'<span class="mu sm">Кун белгиланмаган</span>'}</div>
+ <div class="mu sm" style="margin-bottom:10px">${it.map(i=>esc(i.ex.name)+(i.ex.type==='t'?'':' · '+i.n+' сет')).join('<br>')}</div>
+ <button class="btn ${today?'p':''}" style="margin:0" data-a="tstart:${t.id}">▶ Бошлаш</button></div>`;
+}
+function startTpl(id){
+ const t=S.tpl.find(x=>x.id===id);if(!t)return;
+ if(S.active&&!confirm('Бошланган машғулот бор. Уни бекор қилиб, янгисини бошлайсизми?'))return;
+ S.active={name:t.name,start:Date.now(),exercises:tplEx(t).map(i=>({exId:i.ex.id,name:i.ex.name,type:i.ex.type,sets:Array.from({length:Math.max(1,i.n||1)},()=>({a:'',b:'',done:false}))}))};
+ save();tab='today';render();window.scrollTo(0,0);
+}
+
+/* ---------- Тўпламлар ---------- */
+function rTpl(){
+ $('#main').innerHTML=`<button class="btn p" data-a="tnew">+ Янги тўплам</button>
+ ${S.tpl.map(t=>{const it=tplEx(t);return `<div class="card">
+  <div class="row" style="margin-bottom:6px"><b class="sp" style="font-size:17px">${esc(t.name)}</b>
+   <button class="btn sm" data-a="tedit:${t.id}">✎</button><button class="btn sm d" data-a="tdel:${t.id}">✕</button></div>
+  <div style="margin-bottom:8px">${DORD.filter(d=>t.days.includes(d)).map(d=>`<span class="tg">${DSH[d]}</span>`).join('')||'<span class="mu sm">Кун белгиланмаган</span>'}</div>
+  <div class="mu sm" style="margin-bottom:10px">${it.length?it.map((i,k)=>`${k+1}. ${esc(i.ex.name)}${i.ex.type==='t'?'':' · '+i.n+' сет'}`).join('<br>'):'Машқ қўшилмаган — ✎ ни босинг'}</div>
+  ${it.length?`<button class="btn" style="margin:0" data-a="tstart:${t.id}">▶ Бошлаш</button>`:''}
+ </div>`}).join('')||'<div class="empty">Тўплам йўқ</div>'}`;
+}
+
+function tplEdit(id){
+ const src=S.tpl.find(x=>x.id===id);
+ const T=src?JSON.parse(JSON.stringify(src)):{id:uid(),name:'',days:[],items:[]};
+ const sh=sheet(`<div style="font-weight:800;font-size:18px;margin-bottom:12px">${src?'Тўпламни таҳрирлаш':'Янги тўплам'}</div>
+ <input class="in" id="tn" placeholder="Номи, масалан: Кўкрак ва елка" value="${esc(T.name)}" style="margin-bottom:10px">
+ <div class="mu sm" style="margin-bottom:6px">Қайси кунлари:</div>
+ <div class="days" id="td"></div>
+ <div class="mu sm" style="margin-bottom:6px">Машқлар ва сетлар сони:</div>
+ <div id="ti"></div>
+ <button class="btn" id="ta" style="margin-top:8px">+ Машқ қўшиш</button>
+ <button class="btn p" id="ok">Сақлаш</button>`);
+ const draw=()=>{
+  sh.querySelector('#td').innerHTML=DORD.map(d=>`<button class="${T.days.includes(d)?'on':''}" data-d="${d}">${DSH[d]}</button>`).join('');
+  sh.querySelector('#ti').innerHTML=T.items.map((i,k)=>{const e=S.ex.find(x=>x.id===i.exId);if(!e)return '';return `<div class="row" style="padding:6px 0;border-bottom:1px solid var(--ln)">
+   <span class="sp"><b>${esc(e.name)}</b></span>
+   ${e.type==='t'?'':`<input class="n s" inputmode="numeric" value="${i.n}" data-n="${k}"><span class="mu sm">сет</span>`}
+   <button class="btn sm" data-u="${k}" ${k?'':'disabled style="opacity:.3"'}>↑</button>
+   <button class="btn sm d" data-r="${k}">✕</button></div>`}).join('')||'<div class="mu sm" style="padding:8px 0">Ҳали машқ йўқ</div>';
+ };
+ draw();
+ sh.querySelector('#td').onclick=e=>{const b=e.target.closest('[data-d]');if(!b)return;const d=+b.dataset.d;T.days=T.days.includes(d)?T.days.filter(x=>x!==d):[...T.days,d];draw()};
+ sh.querySelector('#ti').oninput=e=>{const k=e.target.dataset.n;if(k!=null)T.items[+k].n=Math.max(1,Math.min(20,parseInt(e.target.value)||1))};
+ sh.querySelector('#ti').onclick=e=>{const u=e.target.closest('[data-u]'),r=e.target.closest('[data-r]');
+  if(u){const k=+u.dataset.u;if(k>0){[T.items[k-1],T.items[k]]=[T.items[k],T.items[k-1]];draw()}}
+  else if(r){T.items.splice(+r.dataset.r,1);draw()}};
+ sh.querySelector('#ta').onclick=()=>{
+  const ps=sheet(`<div style="font-weight:800;font-size:18px;margin-bottom:10px">Машқларни белгиланг</div>
+  <div id="pl"></div><button class="btn p" id="dn" style="margin-top:10px">Тайёр</button>`);
+  const pd=()=>{ps.querySelector('#pl').innerHTML=S.ex.map(e=>{const on=T.items.some(i=>i.exId===e.id);return `<button class="li" data-id="${e.id}"><span class="sp"><b>${esc(e.name)}</b><br><small class="mu">${exLabel(e.type)}</small></span><span style="font-size:22px;color:${on?'var(--ok)':'var(--mu)'}">${on?'✓':'+'}</span></button>`}).join('')};
+  pd();
+  ps.querySelector('#pl').onclick=e=>{const b=e.target.closest('[data-id]');if(!b)return;const id=b.dataset.id,k=T.items.findIndex(i=>i.exId===id);
+   if(k>=0)T.items.splice(k,1);else{const ex=S.ex.find(x=>x.id===id),l=lastEx(id);T.items.push({exId:id,n:ex.type==='t'?1:(l?Math.max(1,l.sets.length):3)})}pd()};
+  ps.querySelector('#dn').onclick=()=>{ps.remove();draw()};
+  ps.onclick=e=>{if(e.target===ps){ps.remove();draw()}};
+ };
+ sh.querySelector('#ok').onclick=()=>{
+  T.name=sh.querySelector('#tn').value.trim();if(!T.name){toast('Тўплам номини киритинг');return}
+  if(src)Object.assign(src,T);else S.tpl.push(T);
+  save();sh.remove();render();toast('Сақланди ✓');
+ };
 }
 
 function startW(src){
@@ -353,7 +437,7 @@ function restore(){
   r.onload=()=>{try{
    const d=JSON.parse(r.result);if(!Array.isArray(d.ex)||!Array.isArray(d.wo))throw 0;
    if(!confirm('Ҳозирги маълумотлар алмаштирилсинми?'))return;
-   S=d;S.active=S.active||null;save();render();toast('Тикланди ✓');
+   S=d;S.active=S.active||null;if(!Array.isArray(S.tpl))S.tpl=[];save();render();toast('Тикланди ✓');
   }catch(e){toast('Нотўғри файл')}};
   r.readAsText(f)};
  i.click();
@@ -373,6 +457,10 @@ document.addEventListener('click',e=>{
  const t=e.target.closest('[data-a]');if(!t)return;
  const p=t.dataset.a.split(':');const a=p[0],x=p[1];const ei=+x,si=+p[2];
  if(a==='start')startW(null);
+ else if(a==='tstart')startTpl(x);
+ else if(a==='tnew')tplEdit(null);
+ else if(a==='tedit')tplEdit(x);
+ else if(a==='tdel'){const t=S.tpl.find(v=>v.id===x);if(t&&confirm(`«${t.name}» тўплами ўчирилсинми?`)){S.tpl=S.tpl.filter(v=>v.id!==x);save();render()}}
  else if(a==='repeat')startW(S.wo[S.wo.length-1]);
  else if(a==='pick')pickEx();
  else if(a==='addset'){const ex=S.active.exercises[ei];const l=ex.sets[ex.sets.length-1];ex.sets.push({a:l?l.a:'',b:l?l.b:'',p:l?l.p:null,done:false});save();render()}
