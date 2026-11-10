@@ -1,5 +1,5 @@
 // Машқ — интернетсиз ишлаш учун
-const C = 'mashq-v9';
+const C = 'mashq-v10';
 const FILES = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
