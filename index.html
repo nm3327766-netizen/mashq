@@ -140,9 +140,9 @@ const one=t=>t==='t'||t==='k';
 const TYPE_OPTS=v=>[['w','Вазн × такрор (кг)'],['r','Фақат такрор (ўз вазни)'],['t','Вақт (дақиқа)'],['k','Югуриш (вақт, км, ккал)']].map(([k,n])=>`<option value="${k}"${k===v?' selected':''}>${n}</option>`).join('');
 
 const exDef=id=>S.ex.find(e=>e.id===id);
-const KF=['a','d','c','hr','sn','z1','z2','z3','z4','z5'];
+const KF=['a','d','c','hr','mx','sn','z1','z2','z3','z4','z5'];
 const kTxt=s=>{const z=[1,2,3,4,5].filter(i=>num(s['z'+i])).map(i=>'Z'+i+' '+fmtK(s['z'+i]));
- return [num(s.a)?fmtK(s.a)+' дақ':'',num(s.d)?fmtK(s.d)+' км':'',num(s.c)?Math.round(num(s.c))+' ккал':'',num(s.hr)?'❤ '+Math.round(num(s.hr)):'',num(s.sn)?'Strain '+fmtK(s.sn):'',z.length?'('+z.join(', ')+' дақ)':''].filter(Boolean).join(' · ')||'—'};
+ return [num(s.a)?fmtK(s.a)+' дақ':'',num(s.d)?fmtK(s.d)+' км':'',num(s.c)?Math.round(num(s.c))+' ккал':'',num(s.hr)?'❤ '+Math.round(num(s.hr)):'',num(s.mx)?'макс '+Math.round(num(s.mx)):'',num(s.sn)?'Strain '+fmtK(s.sn):'',z.length?'('+z.join(', ')+' дақ)':''].filter(Boolean).join(' · ')||'—'};
 const isDone=(e,s)=>e.type==='k'?KF.some(f=>num(s[f])>0):!!s.done;
 /* ---------- Даража ва кунлар ҳисоби ---------- */
 const UNIT={w:'кг',r:'та',t:'дақ'};
@@ -279,7 +279,7 @@ function kForm(ex,ei,prev){
  const ph=(f,d)=>p&&num(p[f])?fmtK(p[f]):d;
  const F=(f,l,m,d)=>`<label class="kf"><span>${l}</span><input class="n" inputmode="${m}" value="${esc(s[f])}" placeholder="${ph(f,d)}" data-f="${f}" data-e="${ei}" data-s="0"></label>`;
  return `<div class="kg">${F('a','Вақт, дақ','decimal','—')}${F('d','Масофа, км','decimal','—')}${F('c','Ккал','numeric','—')}</div>
- <div class="kg" style="grid-template-columns:1fr 1fr;margin-top:8px">${F('hr','❤ Ўртача пульс','numeric','уд/дақ')}${F('sn','Strain','decimal','0–21')}</div>
+ <div class="kg" style="margin-top:8px">${F('hr','❤ Ўртача','numeric','пульс')}${F('mx','❤ Энг юқори','numeric','пульс')}${F('sn','Strain','decimal','0–21')}</div>
  <div class="mu sm" style="margin:10px 0 4px">Юрак уриш зоналарида вақт (дақиқа):</div>
  <div class="kz">${[1,2,3,4,5].map(z=>F('z'+z,'Z'+z,'decimal','—')).join('')}</div>
  ${prev?`<div class="row sm" style="margin-top:8px"><button class="mu" data-a="use:${ei}">↺ Олдингидек</button></div>`:''}`;
@@ -579,7 +579,7 @@ function useLast(ei){
 function finish(){
  const act=S.active;
  const exs=act.exercises.map(e=>({exId:e.exId,name:e.name,type:e.type,...(e.rate?{rate:e.rate}:{}),
-  sets:e.sets.filter(s=>isDone(e,s)).map(s=>e.type==='k'?Object.fromEntries(KF.filter(f=>f==='a'||num(s[f])).map(f=>[f,f==='c'||f==='hr'?Math.round(num(s[f])):num(s[f])])):e.type==='t'?{a:num(s.a)}:e.type==='r'?{b:Math.round(num(s.b))}:{a:num(s.a),b:Math.round(num(s.b))})})).filter(e=>e.sets.length);
+  sets:e.sets.filter(s=>isDone(e,s)).map(s=>e.type==='k'?Object.fromEntries(KF.filter(f=>f==='a'||num(s[f])).map(f=>[f,f==='c'||f==='hr'||f==='mx'?Math.round(num(s[f])):num(s[f])])):e.type==='t'?{a:num(s.a)}:e.type==='r'?{b:Math.round(num(s.b))}:{a:num(s.a),b:Math.round(num(s.b))})})).filter(e=>e.sets.length);
  if(!exs.length){
   if(confirm('Бирорта сет бажарилмаган. Машғулотни бекор қиласизми?')){S.active=null;save();render()}
   return;
