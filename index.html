@@ -149,7 +149,29 @@ function load(){
  const run=new Set();d.ex.forEach(e=>{if(e.type==='t'&&e.name==='Югуриш'){e.type='k';run.add(e.id)}delete e.progs});
  const fx=e=>{if(run.has(e.exId)&&e.type==='t'){e.type='k';e.sets.forEach(s=>delete s.p)}};
  d.wo.forEach(w=>w.exercises.forEach(fx));if(d.active)d.active.exercises.forEach(fx);
+ if(!d.ppl6){d.tpl=d.tpl.filter(t=>t.items.length);addPPL(d);d.ppl6=1}
  return d;
+}
+/* ---------- 6 кунлик PPL дастури ---------- */
+// [ном, тур, сет, мақсад, асосий машқ (узоқ дам)]
+const PPL=[
+ ['Push A (кучга)',1,[['Barbell Bench Press','w',4,'6–8',1],['Incline Dumbbell Press','w',3,'8–10',1],['Seated Dumbbell Shoulder Press','w',3,'8–10'],['Dumbbell Lateral Raise','w',3,'12–15'],['Dips','r',3,'макс'],['Cable Triceps Pushdown','w',3,'10–12']]],
+ ['Pull A (кучга)',2,[['Pull-Ups','r',4,'6–8',1],['Barbell Bent-Over Row','w',4,'6–8',1],['Seated Cable Row','w',3,'10'],['Face Pull','w',3,'12–15'],['Barbell Curl','w',3,'8–10'],['Hammer Curl','w',3,'10–12']]],
+ ['Legs A (кучга)',3,[['Barbell Back Squat','w',4,'6–8',1],['Romanian Deadlift','w',3,'8–10',1],['Leg Press','w',3,'10–12'],['Lying Leg Curl','w',3,'12'],['Standing Calf Raise','w',4,'12–15'],['Plank','t',3,'45–60 с']]],
+ ['Push B (ҳажмга)',4,[['Incline Barbell Bench Press','w',4,'8–10',1],['Dumbbell Flat Bench Press','w',3,'10–12'],['Arnold Press','w',3,'10–12'],['Cable Lateral Raise','w',3,'15'],['Cable Chest Fly','w',3,'12–15'],['Overhead Dumbbell Triceps Extension','w',3,'12']]],
+ ['Pull B (ҳажмга)',5,[['Lat Pulldown (Wide Grip)','w',4,'10–12',1],['One-Arm Dumbbell Row','w',3,'10–12'],['Chest-Supported Machine Row','w',3,'12'],['Rear Delt Dumbbell Fly','w',3,'15'],['Incline Dumbbell Curl','w',3,'12'],['Cable Curl','w',3,'12–15']]],
+ ['Legs B (ҳажмга)',6,[['Goblet Squat','w',4,'10',1],['Walking Dumbbell Lunges','w',3,'10 ҳар оёққа'],['Leg Extension','w',3,'12–15'],['Hip Thrust','w',3,'10–12',1],['Seated Calf Raise','w',4,'15'],['Hanging Leg Raise','r',3,'12']]]
+];
+function addPPL(d){
+ PPL.forEach(([name,day,list])=>{
+  if(d.tpl.some(t=>t.name===name))return;
+  const items=list.map(([n,type,sets,r,big])=>{
+   let e=d.ex.find(x=>x.name.toLowerCase()===n.toLowerCase());
+   if(!e){e={id:uid(),name:n,type,rest:type==='t'?60:big?150:75};d.ex.push(e)}
+   return{exId:e.id,n:sets,r};
+  });
+  d.tpl.push({id:uid(),name,days:[day],items});
+ });
 }
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('⚠️ Хотира тўлди — баъзи расмларни ўчиринг')}}
 let S=load();
@@ -195,6 +217,7 @@ function exBlock(ex,ei){
  const t=ex.type==='t',r=ex.type==='r',k=ex.type==='k',prev=lastEx(ex.exId),rs=restOf(ex.exId);
  return `<div class="card">
  <div class="row" style="margin-bottom:2px">${thumb(ex.exId,ex.name,52,'img:'+ex.exId)}<b class="sp" style="font-size:17px">${esc(ex.name)}</b>${k?'':`<button class="rbtn" data-a="rset:${ei}">⏱ ${rs?clock(rs*1000):'йўқ'}</button>`}<button class="btn sm d" data-a="rm:${ei}">✕</button></div>
+ ${ex.tg?`<div class="sm" style="font-weight:700;color:var(--ac);margin-bottom:2px">🎯 Мақсад: ${esc(ex.tg)}</div>`:''}
  <div class="mu sm" style="margin-bottom:${prev&&prev.rate?4:10}px">${prev?`Охирги марта: ${shortD(lastWo(ex.exId).start)}`:'Биринчи марта бажариляпти'}</div>
  ${prev?advice(prev.rate):''}
  ${k?'<div class="sets k h"><span>№</span><span>ОЛДИНГИ</span><span>ДАҚИҚА</span><span>КМ</span><span>ККАЛ</span></div>'
@@ -220,24 +243,26 @@ function tplCard(t,today){
  return `<div class="card tc ${today?'today':''}">
  <div class="row" style="margin-bottom:6px"><b class="sp" style="font-size:17px">${esc(t.name)}</b></div>
  <div style="margin-bottom:8px">${DORD.filter(d=>t.days.includes(d)).map(d=>`<span class="tg ${d===new Date().getDay()?'on':''}">${DSH[d]}</span>`).join('')||'<span class="mu sm">Кун белгиланмаган</span>'}</div>
- <div class="mu sm" style="margin-bottom:10px">${it.map(i=>esc(i.ex.name)+(one(i.ex.type)?'':' · '+i.n+' сет')).join('<br>')}</div>
+ <div class="mu sm" style="margin-bottom:10px">${it.map(i=>esc(i.ex.name)+(i.r?' · '+i.n+'×'+esc(i.r):one(i.ex.type)?'':' · '+i.n+' сет')).join('<br>')}</div>
  <button class="btn ${today?'p':''}" style="margin:0" data-a="tstart:${t.id}">▶ Бошлаш</button></div>`;
 }
 function startTpl(id){
  const t=S.tpl.find(x=>x.id===id);if(!t)return;
  if(S.active&&!confirm('Бошланган машғулот бор. Уни бекор қилиб, янгисини бошлайсизми?'))return;
- S.active={name:t.name,start:Date.now(),exercises:tplEx(t).map(i=>({exId:i.ex.id,name:i.ex.name,type:i.ex.type,sets:Array.from({length:Math.max(1,i.n||1)},()=>({a:'',b:'',done:false}))}))};
+ S.active={name:t.name,start:Date.now(),exercises:tplEx(t).map(i=>({exId:i.ex.id,name:i.ex.name,type:i.ex.type,...(i.r?{tg:i.n+'×'+i.r}:{}),sets:Array.from({length:Math.max(1,i.n||1)},()=>({a:'',b:'',done:false}))}))};
  save();tab='today';render();window.scrollTo(0,0);
 }
 
 /* ---------- Тўпламлар ---------- */
 function rTpl(){
+ const noPPL=PPL.some(([n])=>!S.tpl.some(t=>t.name===n));
  $('#main').innerHTML=`<button class="btn p" data-a="tnew">+ Янги тўплам</button>
+ ${noPPL?'<button class="btn" data-a="ppl">+ 6 кунлик PPL дастурини қўшиш</button>':''}
  ${S.tpl.map(t=>{const it=tplEx(t);return `<div class="card">
   <div class="row" style="margin-bottom:6px"><b class="sp" style="font-size:17px">${esc(t.name)}</b>
    <button class="btn sm" data-a="tedit:${t.id}">✎</button><button class="btn sm d" data-a="tdel:${t.id}">✕</button></div>
   <div style="margin-bottom:8px">${DORD.filter(d=>t.days.includes(d)).map(d=>`<span class="tg">${DSH[d]}</span>`).join('')||'<span class="mu sm">Кун белгиланмаган</span>'}</div>
-  <div class="mu sm" style="margin-bottom:10px">${it.length?it.map((i,k)=>`${k+1}. ${esc(i.ex.name)}${one(i.ex.type)?'':' · '+i.n+' сет'}`).join('<br>'):'Машқ қўшилмаган — ✎ ни босинг'}</div>
+  <div class="mu sm" style="margin-bottom:10px">${it.length?it.map((i,k)=>`${k+1}. ${esc(i.ex.name)}${i.r?' · '+i.n+'×'+esc(i.r):one(i.ex.type)?'':' · '+i.n+' сет'}`).join('<br>'):'Машқ қўшилмаган — ✎ ни босинг'}</div>
   ${it.length?`<button class="btn" style="margin:0" data-a="tstart:${t.id}">▶ Бошлаш</button>`:''}
  </div>`}).join('')||'<div class="empty">Тўплам йўқ</div>'}`;
 }
@@ -576,6 +601,7 @@ document.addEventListener('click',e=>{
  if(a==='start')startW(null);
  else if(a==='tstart')startTpl(x);
  else if(a==='tnew')tplEdit(null);
+ else if(a==='ppl'){addPPL(S);save();render();toast('PPL дастури қўшилди ✓')}
  else if(a==='tedit')tplEdit(x);
  else if(a==='tdel'){const t=S.tpl.find(v=>v.id===x);if(t&&confirm(`«${t.name}» тўплами ўчирилсинми?`)){S.tpl=S.tpl.filter(v=>v.id!==x);save();render()}}
  else if(a==='repeat')startW(S.wo[S.wo.length-1]);
