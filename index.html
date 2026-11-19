@@ -205,7 +205,32 @@ let S=load();
 let tab='today';
 
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),2200)}
-function sheet(html){const bg=document.createElement('div');bg.className='ov';bg.innerHTML=`<div class="sheet">${html}</div>`;document.body.appendChild(bg);bg.onclick=e=>{if(e.target===bg)bg.remove()};return bg}
+/* ---------- Телефондаги «Орқага» тугмаси ---------- */
+// Ҳар бир очилган ойна/бўлим тарихга ёзилади; «Орқага» уни биттадан ёпади
+let SEQ=0,LAY=[],atRoot=true;
+function pushLayer(alive,close,isTab){
+ if(atRoot){atRoot=false;history.pushState({s:0},'')}
+ const s=++SEQ;LAY.push({s,alive,close,isTab});history.pushState({s},'');
+}
+function armBack(){if(atRoot){atRoot=false;history.pushState({s:0},'')}}
+history.replaceState({root:1},'');
+document.addEventListener('pointerdown',armBack,true);
+window.addEventListener('popstate',e=>{
+ const st=e.state||{};
+ if(st.root){LAY.forEach(l=>{if(l.alive())l.close()});LAY=[];atRoot=true;toast('Чиқиш учун яна бир марта босинг');return}
+ atRoot=false;
+ const s=st.s||0;let n=0;
+ LAY.filter(l=>l.s>s).reverse().forEach(l=>{if(l.alive()){l.close();n++}});
+ LAY=LAY.filter(l=>l.s<=s);
+ if(!n)history.back(); // ёпилган ойнанинг эски ёзуви — ўтказиб юборамиз
+});
+function setTab(t){
+ tab=t;
+ if(t!=='today'&&!LAY.some(l=>l.isTab&&l.alive()))pushLayer(()=>tab!=='today',()=>{tab='today';render();window.scrollTo(0,0)},true);
+ render();window.scrollTo(0,0);
+}
+function sheet(html,onBack){const bg=document.createElement('div');bg.className='ov';bg.innerHTML=`<div class="sheet">${html}</div>`;document.body.appendChild(bg);bg.onclick=e=>{if(e.target===bg)bg.remove()};
+ pushLayer(()=>bg.isConnected,()=>{bg.remove();if(onBack)onBack()});return bg}
 const lastEx=id=>{for(let i=S.wo.length-1;i>=0;i--){const e=S.wo[i].exercises.find(x=>x.exId===id);if(e)return e}return null};
 const RATE=['','Жуда осон','Осон','Ўртача','Қийин','Жуда қийин'];
 const advice=r=>!r?'':r<=2?`<div class="adv up">Олдинги баҳо: ${r} — ⬆ бу сафар кучайтиринг</div>`:r<=4?`<div class="adv eq">Олдинги баҳо: ${r} — шу ҳолича давом этинг</div>`:`<div class="adv st">Олдинги баҳо: ${r} — ⏸ кучайтирманг</div>`;
@@ -299,7 +324,7 @@ function startTpl(id){
  const t=S.tpl.find(x=>x.id===id);if(!t)return;
  if(S.active&&!confirm('Бошланган машғулот бор. Уни бекор қилиб, янгисини бошлайсизми?'))return;
  S.active={name:t.name,start:Date.now(),exercises:tplEx(t).map(i=>({exId:i.ex.id,name:i.ex.name,type:i.ex.type,...(i.r?{tg:i.n+'×'+i.r}:{}),sets:Array.from({length:i.ex.type==='k'?1:Math.max(1,i.n||1)},()=>({a:'',b:'',done:false}))}))};
- save();tab='today';render();window.scrollTo(0,0);
+ save();setTab('today');
 }
 
 /* ---------- Тўпламлар ---------- */
@@ -345,7 +370,7 @@ function tplEdit(id){
   else if(r){T.items.splice(+r.dataset.r,1);draw()}};
  sh.querySelector('#ta').onclick=()=>{
   const ps=sheet(`<div style="font-weight:800;font-size:18px;margin-bottom:10px">Машқларни белгиланг</div>
-  <div id="pl"></div><button class="btn p" id="dn" style="margin-top:10px">Тайёр</button>`);
+  <div id="pl"></div><button class="btn p" id="dn" style="margin-top:10px">Тайёр</button>`,()=>draw());
   const pd=()=>{ps.querySelector('#pl').innerHTML=S.ex.map(e=>{const on=T.items.some(i=>i.exId===e.id);return `<button class="li" data-id="${e.id}">${thumb(e.id,e.name,44)}<span class="sp"><b>${esc(e.name)}</b><br><small class="mu">${exLabel(e.type)}</small></span><span style="font-size:22px;color:${on?'var(--ok)':'var(--mu)'}">${on?'✓':'+'}</span></button>`}).join('')};
   pd();
   ps.querySelector('#pl').onclick=e=>{const b=e.target.closest('[data-id]');if(!b)return;const id=b.dataset.id,k=T.items.findIndex(i=>i.exId===id);
@@ -501,6 +526,7 @@ async function viewMedia(id){
  <div class="row" style="gap:10px;flex-wrap:wrap;justify-content:center">${e.vurl?`<a class="btn sm" href="${esc(e.vurl)}" target="_blank" rel="noopener" style="${B}">▶ Видео ҳаволаси</a>`:''}<button class="btn sm" data-n style="${B}">✎ Ўзгартириш</button><button class="btn sm" data-c style="${B}">Ёпиш</button></div>`;
  v.onclick=ev=>{if(ev.target.closest('a')||ev.target.closest('video'))return;const n=ev.target.closest('[data-n]');if(u)URL.revokeObjectURL(u);v.remove();if(n)editEx(id)};
  document.body.appendChild(v);
+ pushLayer(()=>v.isConnected,()=>{if(u)URL.revokeObjectURL(u);v.remove()});
 }
 const restOf=id=>{const e=S.ex.find(x=>x.id===id);if(!e)return 90;if(e.rest==null)return one(e.type)?0:90;return e.rest};
 let AC=null;
@@ -593,7 +619,7 @@ function finish(){
   if(best>0&&now>best)prs.push(`${e.name}: ${fmtK(now)} ${e.type==='k'?'км':e.type==='t'?'дақ':e.type==='r'?'та':'кг'}`);
  });
  S.wo.push({id:uid(),name:act.name.trim()||'Машғулот',start:act.start,end:Date.now(),exercises:exs});
- S.active=null;S.timer=null;restStop();save();tab='hist';render();
+ S.active=null;S.timer=null;restStop();save();setTab('hist');
  if(prs.length){
   const sh=sheet(`<div style="text-align:center;font-size:40px">🏆</div><div style="text-align:center;font-weight:800;font-size:20px;margin-bottom:12px">Янги рекорд!</div>${prs.map(p=>`<div class="pr">${esc(p)}</div>`).join('')}<button class="btn p" data-close>Ёпиш</button>`);
   sh.querySelector('[data-close]').onclick=()=>sh.remove();
@@ -651,7 +677,7 @@ function rEx(){
 }
 
 /* ---------- Ҳодисалар ---------- */
-document.getElementById('nav').onclick=e=>{const b=e.target.closest('[data-tab]');if(!b)return;tab=b.dataset.tab;render();window.scrollTo(0,0)};
+document.getElementById('nav').onclick=e=>{const b=e.target.closest('[data-tab]');if(!b)return;setTab(b.dataset.tab)};
 
 document.addEventListener('click',e=>{
  const t=e.target.closest('[data-a]');if(!t)return;
